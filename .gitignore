@@ -30,8 +30,20 @@ build/
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
+!**/.env.example
 
 # Temporary files
 *.tmp
 *.temp
 *.log
+
+# Backend runtime artifacts
+backend/node_modules/
+backend/logs/
+backend/pids/
+backend/coverage/
+backend/.nyc_output/
+backend/*.pid
+backend/*.pid.lock

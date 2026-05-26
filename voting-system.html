@@ -1,0 +1,1526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StarVote — School Awards 2025</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --gold: #d4af37;
+        --gold-light: #f0d060;
+        --dark: #0a0a0f;
+        --dark2: #13131a;
+        --dark3: #1c1c27;
+        --card: #16161f;
+        --border: rgba(212, 175, 55, 0.18);
+        --text: #e8e8f0;
+        --muted: #7a7a9a;
+        --green: #22c55e;
+        --wa: #25d366;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--dark);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* HERO */
+      .hero {
+        background:
+          radial-gradient(
+            ellipse at 50% 0%,
+            rgba(212, 175, 55, 0.13) 0%,
+            transparent 65%
+          ),
+          linear-gradient(180deg, #0d0d15 0%, #0a0a0f 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 48px 24px 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4AF37' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        pointer-events: none;
+      }
+      .school-badge {
+        display: inline-block;
+        border: 1px solid var(--border);
+        padding: 6px 18px;
+        border-radius: 99px;
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 20px;
+        background: rgba(212, 175, 55, 0.07);
+      }
+      .hero h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(36px, 8vw, 72px);
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff 30%, var(--gold) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.05;
+        margin-bottom: 12px;
+      }
+      .hero p {
+        color: var(--muted);
+        font-size: 15px;
+        max-width: 440px;
+        margin: 0 auto 28px;
+      }
+      .vote-cost {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gold);
+      }
+
+      /* NAV TABS */
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 20px 20px 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .tab {
+        padding: 10px 20px;
+        border: none;
+        background: none;
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: 0.2s;
+        white-space: nowrap;
+        letter-spacing: 0.3px;
+      }
+      .tab.active {
+        color: var(--gold);
+        border-bottom-color: var(--gold);
+      }
+      .tab:hover:not(.active) {
+        color: var(--text);
+      }
+
+      /* NOMINEES GRID */
+      .section {
+        padding: 28px 20px 60px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        overflow: hidden;
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s,
+          border-color 0.25s;
+        cursor: pointer;
+        position: relative;
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow:
+          0 20px 40px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(212, 175, 55, 0.3);
+      }
+      .card-rank {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gold);
+        z-index: 2;
+      }
+      .card-rank.r1 {
+        background: rgba(212, 175, 55, 0.15);
+        border-color: var(--gold);
+      }
+      .card-img {
+        width: 100%;
+        aspect-ratio: 3/4;
+        object-fit: cover;
+        background: linear-gradient(135deg, var(--dark3) 0%, var(--dark2) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        position: relative;
+      }
+      .card-img .emoji {
+        font-size: 64px;
+        line-height: 1;
+      }
+      .card-body {
+        padding: 14px;
+      }
+      .card-name {
+        font-family: "Playfair Display", serif;
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      .card-dept {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+      .vote-bar-wrap {
+        margin-bottom: 12px;
+      }
+      .vote-bar-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 5px;
+      }
+      .vote-bar {
+        height: 4px;
+        background: var(--dark3);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .vote-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--gold-light));
+        border-radius: 99px;
+        transition: width 0.8s ease;
+      }
+      .vote-btn {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--gold);
+        background: rgba(212, 175, 55, 0.08);
+        color: var(--gold);
+        border-radius: 10px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        letter-spacing: 0.3px;
+      }
+      .vote-btn:hover {
+        background: var(--gold);
+        color: var(--dark);
+      }
+
+      /* MODAL */
+      .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(6px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .overlay.open {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .modal {
+        background: var(--dark2);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        width: 100%;
+        max-width: 480px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.25s ease;
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      .modal-header {
+        padding: 24px 24px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .modal-title {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .modal-sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .close-btn {
+        background: var(--dark3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+      .close-btn:hover {
+        color: var(--text);
+      }
+
+      /* METHOD TABS */
+      .method-tabs {
+        display: flex;
+        gap: 6px;
+        padding: 20px 24px 0;
+      }
+      .method-tab {
+        flex: 1;
+        padding: 8px 4px;
+        border: 1px solid var(--border);
+        background: none;
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: 0.2s;
+        text-align: center;
+        line-height: 1.3;
+      }
+      .method-tab.active {
+        background: rgba(212, 175, 55, 0.1);
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+      .method-tab:hover:not(.active) {
+        border-color: var(--muted);
+        color: var(--text);
+      }
+      .method-badge {
+        font-size: 16px;
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      .modal-body {
+        padding: 20px 24px 24px;
+      }
+
+      /* OPTION PANELS */
+      .option-panel {
+        display: none;
+      }
+      .option-panel.active {
+        display: block;
+      }
+
+      .info-box {
+        background: var(--dark3);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 14px;
+      }
+      .info-box-label {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .info-box-val {
+        font-size: 20px;
+        font-weight: 700;
+        font-family: "Playfair Display", serif;
+        color: var(--text);
+        letter-spacing: 1px;
+      }
+      .info-box-val span {
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--muted);
+      }
+      .copy-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 8px;
+      }
+      .copy-btn {
+        flex-shrink: 0;
+        padding: 6px 14px;
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid var(--border);
+        color: var(--gold);
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .copy-btn:hover {
+        background: rgba(212, 175, 55, 0.2);
+      }
+
+      .step-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .step {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .step-num {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gold);
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .step-text {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .step-text strong {
+        color: var(--text);
+      }
+
+      .wa-btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--wa);
+        border: none;
+        border-radius: 12px;
+        color: #fff;
+        font-family: "DM Sans", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: 0.2s;
+      }
+      .wa-btn:hover {
+        filter: brightness(1.1);
+      }
+      .wa-icon {
+        font-size: 20px;
+      }
+
+      .auto-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 14px;
+        font-size: 13px;
+        color: var(--green);
+        font-weight: 500;
+      }
+      .virtual-acct {
+        background: linear-gradient(
+          135deg,
+          rgba(212, 175, 55, 0.12),
+          rgba(212, 175, 55, 0.04)
+        );
+        border: 1px solid var(--gold);
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 14px;
+        text-align: center;
+      }
+      .virtual-acct .acct-num {
+        font-size: 28px;
+        font-weight: 700;
+        font-family: "Playfair Display", serif;
+        letter-spacing: 3px;
+        color: var(--gold);
+      }
+      .virtual-acct .acct-bank {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .virtual-acct .acct-name {
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 6px;
+      }
+
+      .calc-box {
+        background: var(--dark3);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 14px;
+        display: none;
+      }
+      .calc-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+      .calc-input {
+        width: 100%;
+        background: var(--dark2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        outline: none;
+        transition: 0.2s;
+      }
+      .calc-input:focus {
+        border-color: var(--gold);
+      }
+      .calc-result {
+        margin-top: 10px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .calc-result strong {
+        color: var(--gold);
+        font-size: 18px;
+      }
+
+      .warn-box {
+        background: rgba(239, 68, 68, 0.07);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 12px;
+        color: #f87171;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      /* ADMIN DASHBOARD */
+      .admin-section {
+        padding: 28px 20px 60px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+      .stat-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .stat-label {
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .stat-val {
+        font-size: 28px;
+        font-weight: 700;
+        font-family: "Playfair Display", serif;
+      }
+      .stat-val.gold {
+        color: var(--gold);
+      }
+      .stat-val.green {
+        color: var(--green);
+      }
+      .stat-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .table-wrap {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .table-header {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .table-title {
+        font-family: "Playfair Display", serif;
+        font-size: 17px;
+        font-weight: 700;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th {
+        padding: 12px 20px;
+        text-align: left;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 13px 20px;
+        font-size: 13px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .tx-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 99px;
+      }
+      .tx-status.success {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--green);
+      }
+      .tx-status.pending {
+        background: rgba(250, 189, 0, 0.1);
+        color: #fabd00;
+      }
+
+      /* PAGE MANAGEMENT */
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+      }
+
+      /* BOTTOM NAV */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 15, 0.95);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--border);
+        display: flex;
+        padding: 10px 20px 18px;
+        gap: 4px;
+        z-index: 100;
+      }
+      .nav-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 8px 4px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        transition: 0.2s;
+        border-radius: 10px;
+      }
+      .nav-btn.active {
+        color: var(--gold);
+        background: rgba(212, 175, 55, 0.07);
+      }
+      .nav-btn:hover:not(.active) {
+        color: var(--text);
+      }
+      .nav-icon {
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      pb {
+        padding-bottom: 90px;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HERO -->
+    <div class="hero">
+      <div class="school-badge">🏆 Prestige Academy Awards 2025</div>
+      <h1>StarVote</h1>
+      <p>
+        Vote for your favourite nominees across all categories. Every ₦100 = 1
+        vote.
+      </p>
+      <div class="vote-cost">
+        ⭐ ₦100 per vote &nbsp;·&nbsp; Minimum ₦100 &nbsp;·&nbsp; Pay any amount
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs" id="categoryTabs">
+      <button class="tab active" onclick="filterCategory('all', this)">
+        All Categories
+      </button>
+      <button class="tab" onclick="filterCategory('beauty', this)">
+        Most Beautiful
+      </button>
+      <button class="tab" onclick="filterCategory('popular', this)">
+        Most Popular
+      </button>
+      <button class="tab" onclick="filterCategory('influential', this)">
+        Most Influential
+      </button>
+      <button class="tab" onclick="filterCategory('talented', this)">
+        Most Talented
+      </button>
+    </div>
+
+    <!-- NOMINEES PAGE -->
+    <div class="page active" id="pageVote">
+      <div class="section">
+        <div class="grid" id="nomineeGrid"></div>
+      </div>
+      <pb></pb>
+    </div>
+
+    <!-- ADMIN PAGE -->
+    <div class="page" id="pageAdmin">
+      <div class="admin-section">
+        <div style="margin-bottom: 24px">
+          <div class="school-badge" style="margin-bottom: 12px">
+            🔐 Admin Dashboard
+          </div>
+          <h2
+            style="
+              font-family: &quot;Playfair Display&quot;, serif;
+              font-size: 28px;
+              font-weight: 700;
+            "
+          >
+            Transaction Overview
+          </h2>
+          <p style="color: var(--muted); font-size: 14px; margin-top: 4px">
+            Live view of all payments and vote allocations
+          </p>
+        </div>
+
+        <div class="admin-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Collected</div>
+            <div class="stat-val gold">₦47,300</div>
+            <div class="stat-sub">Across all nominees</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Votes Cast</div>
+            <div class="stat-val" style="color: var(--text)">473</div>
+            <div class="stat-sub">Floor-divided by ₦100</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Transactions</div>
+            <div class="stat-val green">38</div>
+            <div class="stat-sub">All verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Unallocated</div>
+            <div class="stat-val" style="font-size: 20px; color: var(--muted)">
+              ₦700
+            </div>
+            <div class="stat-sub">Remainder from rounding</div>
+          </div>
+        </div>
+
+        <!-- Nominee breakdown -->
+        <div class="table-wrap" style="margin-bottom: 18px">
+          <div class="table-header">
+            <span class="table-title">Votes by Nominee</span>
+            <span style="font-size: 12px; color: var(--muted)">Live</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Nominee</th>
+                <th>Category</th>
+                <th>Votes</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody id="adminNomineeTable"></tbody>
+          </table>
+        </div>
+
+        <!-- Transactions -->
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">Recent Transactions</span>
+            <span style="font-size: 12px; color: var(--green)"
+              >● Auto-updated</span
+            >
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Amount</th>
+                <th>Votes</th>
+                <th>Nominee</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color: var(--muted)">12:04 PM</td>
+                <td style="font-weight: 600">₦500</td>
+                <td style="color: var(--gold)">5 votes</td>
+                <td>Ada Okonkwo</td>
+                <td><span class="tx-status success">✓ Confirmed</span></td>
+              </tr>
+              <tr>
+                <td style="color: var(--muted)">11:58 AM</td>
+                <td style="font-weight: 600">₦1,000</td>
+                <td style="color: var(--gold)">10 votes</td>
+                <td>Emeka Eze</td>
+                <td><span class="tx-status success">✓ Confirmed</span></td>
+              </tr>
+              <tr>
+                <td style="color: var(--muted)">11:51 AM</td>
+                <td style="font-weight: 600">₦650</td>
+                <td style="color: var(--gold)">6 votes</td>
+                <td>Ngozi Adeyemi</td>
+                <td><span class="tx-status success">✓ Confirmed</span></td>
+              </tr>
+              <tr>
+                <td style="color: var(--muted)">11:44 AM</td>
+                <td style="font-weight: 600">₦200</td>
+                <td style="color: var(--gold)">2 votes</td>
+                <td>Tunde Bello</td>
+                <td><span class="tx-status success">✓ Confirmed</span></td>
+              </tr>
+              <tr>
+                <td style="color: var(--muted)">11:39 AM</td>
+                <td style="font-weight: 600">₦300</td>
+                <td style="color: var(--gold)">3 votes</td>
+                <td>Ada Okonkwo</td>
+                <td><span class="tx-status pending">⏳ Pending</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <pb></pb>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <button
+        class="nav-btn active"
+        id="navVote"
+        onclick="showPage('pageVote', 'navVote')"
+      >
+        <span class="nav-icon">🏆</span>Vote
+      </button>
+      <button
+        class="nav-btn"
+        id="navAdmin"
+        onclick="showPage('pageAdmin', 'navAdmin')"
+      >
+        <span class="nav-icon">📊</span>Admin
+      </button>
+    </div>
+
+    <!-- VOTE MODAL -->
+    <div class="overlay" id="overlay" onclick="closeOverlay(event)">
+      <div class="modal" id="modal">
+        <div class="modal-header">
+          <div>
+            <div class="modal-title" id="modalName">Ada Okonkwo</div>
+            <div class="modal-sub" id="modalCat">Most Beautiful</div>
+          </div>
+          <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+
+        <!-- Method selector tabs -->
+        <div class="method-tabs">
+          <button
+            class="method-tab active"
+            onclick="switchMethod('manual', this)"
+          >
+            <span class="method-badge">👤</span>Manual
+          </button>
+          <button class="method-tab" onclick="switchMethod('auto', this)">
+            <span class="method-badge">⚡</span>Auto Pay
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- OPTION 1: MANUAL -->
+          <div class="option-panel active" id="panel-manual">
+            <div class="calc-box">
+              <div class="calc-label">Calculate your votes (₦100 = 1 vote)</div>
+              <input
+                class="calc-input"
+                type="number"
+                placeholder="Enter amount e.g. 500"
+                oninput="calcVotes(this)"
+                id="calc1"
+              />
+              <div class="calc-result" id="calc1result">
+                Enter an amount above
+              </div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-label">Pay to this account</div>
+              <div class="info-box-val">2087654321 <span>— OPay</span></div>
+              <div
+                style="font-size: 13px; color: var(--muted); margin-top: 4px"
+              >
+                Account Name: Prestige Academy Awards
+              </div>
+              <div class="copy-row">
+                <input
+                  style="
+                    flex: 1;
+                    background: var(--dark2);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    color: var(--text);
+                    font-family: &quot;DM Sans&quot;, sans-serif;
+                    font-size: 14px;
+                  "
+                  value="2087654321"
+                  readonly
+                />
+                <button class="copy-btn" onclick="copyText('2087654321', this)">
+                  Copy
+                </button>
+              </div>
+            </div>
+            <div class="step-list">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                  Pay to the account above — any amount (min ₦100)
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">Screenshot your payment receipt</div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                  <strong>Send to admin</strong> — they will count your votes
+                  manually and update the board
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text">
+                  Wait for your votes to appear (may take a few minutes)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- OPTION 2: WHATSAPP BOT -->
+          <div class="option-panel" id="panel-whatsapp">
+            <div class="auto-badge">
+              🤖 Bot automatically reads your receipt and updates votes
+              instantly
+            </div>
+            <div class="calc-box">
+              <div class="calc-label">Calculate your votes (₦100 = 1 vote)</div>
+              <input
+                class="calc-input"
+                type="number"
+                placeholder="Enter amount e.g. 500"
+                oninput="calcVotes2(this)"
+                id="calc2"
+              />
+              <div class="calc-result" id="calc2result">
+                Enter an amount above
+              </div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-label">Pay to this account</div>
+              <div class="info-box-val">2087654321 <span>— OPay</span></div>
+              <div
+                style="font-size: 13px; color: var(--muted); margin-top: 4px"
+              >
+                Account Name: Prestige Academy Awards
+              </div>
+              <div class="copy-row">
+                <input
+                  style="
+                    flex: 1;
+                    background: var(--dark2);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    color: var(--text);
+                    font-family: &quot;DM Sans&quot;, sans-serif;
+                    font-size: 14px;
+                  "
+                  value="2087654321"
+                  readonly
+                />
+                <button class="copy-btn" onclick="copyText('2087654321', this)">
+                  Copy
+                </button>
+              </div>
+            </div>
+            <div class="step-list">
+              <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">Pay to the account above</div>
+              </div>
+              <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">Screenshot your receipt</div>
+              </div>
+              <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                  Send the receipt to our <strong>WhatsApp bot</strong> below —
+                  include nominee name
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text">
+                  Bot verifies payment amount and
+                  <strong>instantly updates your votes</strong>
+                </div>
+              </div>
+            </div>
+            <button class="wa-btn" id="waBtn">
+              <span class="wa-icon">💬</span>
+              Send Receipt on WhatsApp
+            </button>
+          </div>
+
+          <!-- OPTION 3: AUTO (PAYSTACK VIRTUAL ACCOUNT) -->
+          <div class="option-panel" id="panel-auto">
+            <div class="auto-badge">
+              ⚡ Pay → votes update automatically. No receipt needed.
+            </div>
+            <div class="virtual-acct">
+              <div
+                style="
+                  font-size: 11px;
+                  color: var(--muted);
+                  letter-spacing: 1px;
+                  text-transform: uppercase;
+                  margin-bottom: 8px;
+                "
+              >
+                Your Unique Voting Account
+              </div>
+              <div class="acct-num" id="virtualAcctNum">0123 4567 89</div>
+              <div class="acct-bank" id="virtualBank">Wema Bank (ALAT)</div>
+              <div class="acct-name" id="virtualName">VOTE · Ada Okonkwo</div>
+            </div>
+            <div class="calc-box">
+              <div class="calc-label">Calculate your votes (₦100 = 1 vote)</div>
+              <input
+                class="calc-input"
+                type="number"
+                placeholder="Enter amount e.g. 500"
+                oninput="calcVotes3(this)"
+                id="calc3"
+              />
+              <div class="calc-result" id="calc3result">
+                Enter an amount above
+              </div>
+            </div>
+            <div
+              class="info-box"
+              style="
+                border-color: rgba(34, 197, 94, 0.2);
+                background: rgba(34, 197, 94, 0.04);
+              "
+            >
+              <div class="info-box-label" style="color: var(--green)">
+                How it works
+              </div>
+              <div class="step-list" style="margin-top: 8px; margin-bottom: 0">
+                <div class="step">
+                  <div
+                    class="step-num"
+                    style="
+                      background: rgba(34, 197, 94, 0.1);
+                      border-color: rgba(34, 197, 94, 0.2);
+                      color: var(--green);
+                    "
+                  >
+                    1
+                  </div>
+                  <div class="step-text">
+                    Copy the account number above — it belongs only to
+                    <strong id="nomineeNameStep">this nominee</strong>
+                  </div>
+                </div>
+                <div class="step">
+                  <div
+                    class="step-num"
+                    style="
+                      background: rgba(34, 197, 94, 0.1);
+                      border-color: rgba(34, 197, 94, 0.2);
+                      color: var(--green);
+                    "
+                  >
+                    2
+                  </div>
+                  <div class="step-text">
+                    Transfer any amount from your bank app
+                  </div>
+                </div>
+                <div class="step">
+                  <div
+                    class="step-num"
+                    style="
+                      background: rgba(34, 197, 94, 0.1);
+                      border-color: rgba(34, 197, 94, 0.2);
+                      color: var(--green);
+                    "
+                  >
+                    3
+                  </div>
+                  <div class="step-text">
+                    <strong>Votes update instantly</strong> — no screenshot, no
+                    WhatsApp, no waiting
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="copy-row">
+              <input
+                style="
+                  flex: 1;
+                  background: var(--dark2);
+                  border: 1px solid var(--border);
+                  border-radius: 8px;
+                  padding: 10px 12px;
+                  color: var(--gold);
+                  font-family: &quot;DM Sans&quot;, sans-serif;
+                  font-size: 16px;
+                  font-weight: 700;
+                  letter-spacing: 2px;
+                "
+                id="copyVirtualAcct"
+                value="0123456789"
+                readonly
+              />
+              <button
+                class="copy-btn"
+                onclick="
+                  copyText(
+                    document.getElementById('copyVirtualAcct').value,
+                    this,
+                  )
+                "
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const nominees = [
+        {
+          id: 1,
+          name: "Ada Okonkwo",
+          dept: "SS3 Science",
+          category: "beauty",
+          emoji: "👸",
+          votes: 142,
+          acct: "0123456789",
+          bank: "Wema Bank (ALAT)",
+        },
+        {
+          id: 2,
+          name: "Ngozi Adeyemi",
+          dept: "SS3 Arts",
+          category: "beauty",
+          emoji: "💎",
+          votes: 98,
+          acct: "0234567890",
+          bank: "Wema Bank (ALAT)",
+        },
+        {
+          id: 3,
+          name: "Chioma Eze",
+          dept: "SS2 Commerce",
+          category: "beauty",
+          emoji: "🌟",
+          votes: 76,
+          acct: "0345678901",
+          bank: "Wema Bank (ALAT)",
+        },
+        {
+          id: 4,
+          name: "Emeka Eze",
+          dept: "SS3 Science",
+          category: "popular",
+          emoji: "🔥",
+          votes: 201,
+          acct: "0456789012",
+          bank: "Wema Bank (ALAT)",
+        },
+        {
+          id: 5,
+          name: "Tunde Bello",
+          dept: "SS3 Arts",
+          category: "popular",
+          emoji: "⚡",
+          votes: 167,
+          acct: "0567890123",
+          bank: "Wema Bank (ALAT)",
+        },
+        {
+          id: 6,
+          name: "Kelechi Obi",
+          dept: "SS2 Science",
+          category: "popular",
+          emoji: "🎯",
+          votes: 89,
+          acct: "0678901234",
+          bank: "Wema Bank (ALAT)",
+        },
+        {
+          id: 7,
+          name: "Amara Nwosu",
+          dept: "SS3 Commerce",
+          category: "influential",
+          emoji: "👑",
+          votes: 134,
+          acct: "0789012345",
+          bank: "Wema Bank (ALAT)",
+        },
+        {
+          id: 8,
+          name: "Sola Adebayo",
+          dept: "SS3 Science",
+          category: "influential",
+          emoji: "💫",
+          votes: 115,
+          acct: "0890123456",
+          bank: "Wema Bank (ALAT)",
+        },
+        {
+          id: 9,
+          name: "Zara Usman",
+          dept: "SS3 Arts",
+          category: "talented",
+          emoji: "🎵",
+          votes: 178,
+          acct: "0901234567",
+          bank: "Wema Bank (ALAT)",
+        },
+        {
+          id: 10,
+          name: "David Onu",
+          dept: "SS2 Science",
+          category: "talented",
+          emoji: "🎨",
+          votes: 93,
+          acct: "0012345678",
+          bank: "Wema Bank (ALAT)",
+        },
+      ];
+
+      let currentCategory = "all";
+      let currentNominee = null;
+
+      function getMax(cat) {
+        const list =
+          cat === "all" ? nominees : nominees.filter((n) => n.category === cat);
+        return Math.max(...list.map((n) => n.votes));
+      }
+
+      function renderNominees(cat) {
+        const grid = document.getElementById("nomineeGrid");
+        const list =
+          cat === "all" ? nominees : nominees.filter((n) => n.category === cat);
+        const sorted = [...list].sort((a, b) => b.votes - a.votes);
+        const max = Math.max(...sorted.map((n) => n.votes));
+        grid.innerHTML = sorted
+          .map(
+            (n, i) => `
+    <div class="card" onclick="openModal(${n.id})">
+      <div class="card-rank ${i === 0 ? "r1" : ""}">${i === 0 ? "🥇" : "#" + (i + 1)}</div>
+      <div class="card-img"><div class="emoji">${n.emoji}</div></div>
+      <div class="card-body">
+        <div class="card-name">${n.name}</div>
+        <div class="card-dept">${n.dept} · ${catLabel(n.category)}</div>
+        <div class="vote-bar-wrap">
+          <div class="vote-bar-label">
+            <span>${n.votes.toLocaleString()} votes</span>
+            <span>${Math.round((n.votes / max) * 100)}%</span>
+          </div>
+          <div class="vote-bar"><div class="vote-bar-fill" style="width:${(n.votes / max) * 100}%"></div></div>
+        </div>
+        <button class="vote-btn">Vote Now →</button>
+      </div>
+    </div>
+  `,
+          )
+          .join("");
+      }
+
+      function catLabel(c) {
+        return (
+          {
+            beauty: "Most Beautiful",
+            popular: "Most Popular",
+            influential: "Most Influential",
+            talented: "Most Talented",
+          }[c] || c
+        );
+      }
+
+      function filterCategory(cat, el) {
+        currentCategory = cat;
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        el.classList.add("active");
+        renderNominees(cat);
+      }
+
+      function openModal(id) {
+        currentNominee = nominees.find((n) => n.id === id);
+        document.getElementById("modalName").textContent = currentNominee.name;
+        document.getElementById("modalCat").textContent = catLabel(
+          currentNominee.category,
+        );
+        document.getElementById("virtualAcctNum").textContent =
+          currentNominee.acct.replace(/(\d{4})(\d{4})(\d{2})/, "$1 $2 $3");
+        document.getElementById("virtualBank").textContent =
+          currentNominee.bank;
+        document.getElementById("virtualName").textContent =
+          "VOTE · " + currentNominee.name.toUpperCase();
+        document.getElementById("copyVirtualAcct").value = currentNominee.acct;
+        document.getElementById("nomineeNameStep").textContent =
+          currentNominee.name;
+        document.getElementById("waBtn").onclick = () => {
+          const msg = encodeURIComponent(
+            `I want to vote for ${currentNominee.name}. Please find my receipt attached.`,
+          );
+          window.open(`https://wa.me/2348012345678?text=${msg}`, "_blank");
+        };
+        ["calc1", "calc2", "calc3"].forEach((id) => {
+          document.getElementById(id).value = "";
+        });
+        ["calc1result", "calc2result", "calc3result"].forEach((id) => {
+          document.getElementById(id).innerHTML = "Enter an amount above";
+        });
+        switchMethod("manual", document.querySelector(".method-tab"));
+        document.getElementById("overlay").classList.add("open");
+      }
+
+      function closeModal() {
+        document.getElementById("overlay").classList.remove("open");
+      }
+      function closeOverlay(e) {
+        if (e.target === document.getElementById("overlay")) closeModal();
+      }
+
+      function switchMethod(method, el) {
+        document
+          .querySelectorAll(".method-tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".option-panel")
+          .forEach((p) => p.classList.remove("active"));
+        if (el) el.classList.add("active");
+        document.getElementById("panel-" + method).classList.add("active");
+      }
+
+      function calcVotes(inp) {
+        const amt = parseInt(inp.value) || 0;
+        const votes = Math.floor(amt / 100);
+        const rem = amt % 100;
+        const el = document.getElementById("calc1result");
+        if (!amt) {
+          el.innerHTML = "Enter an amount above";
+          return;
+        }
+        el.innerHTML = `₦${amt.toLocaleString()} = <strong>${votes} vote${votes !== 1 ? "s" : ""}</strong>${rem ? ` (₦${rem} remainder)` : ""}`;
+      }
+      function calcVotes2(inp) {
+        const amt = parseInt(inp.value) || 0;
+        const votes = Math.floor(amt / 100);
+        const rem = amt % 100;
+        const el = document.getElementById("calc2result");
+        if (!amt) {
+          el.innerHTML = "Enter an amount above";
+          return;
+        }
+        el.innerHTML = `₦${amt.toLocaleString()} = <strong>${votes} vote${votes !== 1 ? "s" : ""}</strong>${rem ? ` (₦${rem} remainder)` : ""}`;
+      }
+      function calcVotes3(inp) {
+        const amt = parseInt(inp.value) || 0;
+        const votes = Math.floor(amt / 100);
+        const rem = amt % 100;
+        const el = document.getElementById("calc3result");
+        if (!amt) {
+          el.innerHTML = "Enter an amount above";
+          return;
+        }
+        el.innerHTML = `₦${amt.toLocaleString()} = <strong>${votes} vote${votes !== 1 ? "s" : ""}</strong>${rem ? ` (₦${rem} remainder)` : ""}`;
+      }
+
+      function copyText(text, btn) {
+        navigator.clipboard.writeText(text).then(() => {
+          const orig = btn.textContent;
+          btn.textContent = "Copied!";
+          btn.style.background = "rgba(34,197,94,.15)";
+          btn.style.color = "#22C55E";
+          btn.style.borderColor = "rgba(34,197,94,.3)";
+          setTimeout(() => {
+            btn.textContent = orig;
+            btn.style.background = "";
+            btn.style.color = "";
+            btn.style.borderColor = "";
+          }, 1800);
+        });
+      }
+
+      function showPage(pageId, navId) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById(pageId).classList.add("active");
+        document.getElementById(navId).classList.add("active");
+      }
+
+      // Admin table
+      function renderAdminTable() {
+        const sorted = [...nominees].sort((a, b) => b.votes - a.votes);
+        document.getElementById("adminNomineeTable").innerHTML = sorted
+          .map(
+            (n) => `
+    <tr>
+      <td style="font-weight:600">${n.name}</td>
+      <td style="color:var(--muted)">${catLabel(n.category)}</td>
+      <td style="color:var(--gold);font-weight:700">${n.votes}</td>
+      <td style="font-weight:600">₦${(n.votes * 100).toLocaleString()}</td>
+    </tr>
+  `,
+          )
+          .join("");
+      }
+
+      renderNominees("all");
+      renderAdminTable();
+    </script>
+  </body>
+</html>
