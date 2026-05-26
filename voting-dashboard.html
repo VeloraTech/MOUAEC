@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MOUAEC Voting Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #07080d;
+        --surface: #121521;
+        --surface-2: #0f111a;
+        --line: rgba(255, 255, 255, 0.09);
+        --text: #eceef8;
+        --muted: #8b91a8;
+        --gold: #f1c35c;
+        --green: #25c46b;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: radial-gradient(circle at 20% -10%, rgba(241,195,92,0.16), transparent 42%), var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 1rem 1rem 5rem; }
+      .hero {
+        border: 1px solid var(--line);
+        background: linear-gradient(145deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+        border-radius: 16px;
+        padding: 1.1rem;
+        margin-bottom: 1rem;
+      }
+      .title { font-family: "Syne", sans-serif; font-size: clamp(1.5rem, 4vw, 2.5rem); }
+      .title span { color: var(--gold); }
+      .sub { color: var(--muted); margin-top: .35rem; font-size: .92rem; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: .8rem;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: .9rem;
+      }
+      .name { font-family: "Syne", sans-serif; font-size: 1.05rem; font-weight: 700; }
+      .dept { color: var(--muted); font-size: .86rem; margin-top: .2rem; }
+      .votes { margin-top: .7rem; font-weight: 700; color: var(--gold); }
+      .vote-btn {
+        margin-top: .75rem; width: 100%; border: 1px solid rgba(241,195,92,.45);
+        background: rgba(241,195,92,.13); color: var(--gold); border-radius: 10px;
+        padding: .67rem; font-weight: 700; cursor: pointer;
+      }
+      .vote-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+      .overlay {
+        position: fixed; inset: 0; background: rgba(3,4,8,.82); backdrop-filter: blur(6px);
+        display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 20;
+      }
+      .overlay.open { display: flex; }
+      .modal {
+        width: 100%; max-width: 500px; background: var(--surface-2);
+        border: 1px solid var(--line); border-radius: 16px; padding: 1rem;
+      }
+      .m-head { display: flex; justify-content: space-between; gap: 1rem; align-items: start; }
+      .m-title { font-family: "Syne", sans-serif; font-size: 1.15rem; }
+      .close { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; }
+      .bank-box {
+        margin-top: .9rem; border: 1px solid rgba(37,196,107,.36); background: rgba(37,196,107,.08);
+        border-radius: 12px; padding: .8rem;
+      }
+      .bank-num { font-family: "Syne", sans-serif; font-size: 1.55rem; letter-spacing: 1px; color: #8effbc; }
+      .bank-meta { margin-top: .35rem; font-size: .9rem; color: #bdeccd; }
+      .small { margin-top: .75rem; color: var(--muted); font-size: .86rem; line-height: 1.5; }
+      .disclaimer {
+        margin-top: .8rem; border: 1px solid rgba(241,195,92,.3); border-radius: 12px;
+        background: rgba(241,195,92,.08); padding: .75rem;
+        font-size: .8rem; color: #ffe3a8; line-height: 1.5;
+      }
+      .actions { margin-top: .9rem; display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+      .btn { border-radius: 10px; padding: .7rem; border: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer; font-weight: 600; }
+      .btn.primary { background: rgba(241,195,92,.16); color: var(--gold); border-color: rgba(241,195,92,.42); }
+      .status { margin-top: .7rem; font-size: .86rem; color: var(--muted); }
+
+      .toasts { position: fixed; top: .7rem; right: .7rem; z-index: 30; display: flex; flex-direction: column; gap: .45rem; max-width: 80vw; }
+      .toast { background: #111420; border: 1px solid var(--line); color: var(--text); border-radius: 9px; padding: .55rem .72rem; font-size: .8rem; }
+
+      @media (max-width: 620px) {
+        .actions { grid-template-columns: 1fr; }
+        .bank-num { font-size: 1.25rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="hero">
+        <h1 class="title">MOUAEC <span>Live Vote</span> Dashboard</h1>
+        <p class="sub">No login. No personal info. Transfer any amount. Votes are credited automatically.</p>
+      </section>
+      <section class="grid" id="grid"></section>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <div class="modal">
+        <div class="m-head">
+          <div>
+            <div class="m-title" id="mTitle">Vote for Nominee</div>
+            <div class="small">This account expires in 30 minutes.</div>
+          </div>
+          <button class="close" id="closeBtn">x</button>
+        </div>
+
+        <div class="bank-box">
+          <div class="bank-num" id="acctNum">-</div>
+          <div class="bank-meta" id="bankMeta">-</div>
+        </div>
+
+        <div class="disclaimer">
+          Important: transfer only to the exact account shown here. Payments to a wrong account cannot be credited.
+          If you transfer after expiry, your bank may reverse automatically based on bank policy, but reversal timing is outside this platform.
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="copyBtn">Copy Account Number</button>
+          <button class="btn primary" id="verifyBtn">Verify Payment</button>
+        </div>
+        <div class="status" id="statusText">Waiting for transfer confirmation...</div>
+      </div>
+    </div>
+
+    <div class="toasts" id="toasts"></div>
+
+    <script>
+      const API_BASE = window.VOTE_API_BASE_URL || "http://localhost:3000";
+      const contestants = [
+        { id: 1, name: "Ada Okonkwo", department: "Computer Science", total_votes: 0 },
+        { id: 2, name: "Emeka Dike", department: "Engineering", total_votes: 0 },
+        { id: 3, name: "Chisom Eze", department: "Business Admin", total_votes: 0 },
+        { id: 4, name: "Fatima Usman", department: "Medicine", total_votes: 0 }
+      ];
+
+      let activeSession = null;
+      let pollTimer = null;
+
+      function toast(message) {
+        const wrap = document.getElementById("toasts");
+        while (wrap.children.length >= 3) wrap.removeChild(wrap.firstChild);
+        const el = document.createElement("div");
+        el.className = "toast";
+        el.textContent = message;
+        wrap.appendChild(el);
+        setTimeout(() => el.remove(), 1300);
+      }
+
+      function render() {
+        const grid = document.getElementById("grid");
+        const sorted = [...contestants].sort((a, b) => b.total_votes - a.total_votes);
+        grid.innerHTML = sorted.map((c) => `
+          <article class="card">
+            <div class="name">${c.name}</div>
+            <div class="dept">${c.department}</div>
+            <div class="votes">${c.total_votes.toLocaleString()} votes</div>
+            <button class="vote-btn" onclick="startVote(${c.id})">Vote</button>
+          </article>
+        `).join("");
+      }
+
+      function openModal() { document.getElementById("overlay").classList.add("open"); }
+      function closeModal() {
+        document.getElementById("overlay").classList.remove("open");
+        if (pollTimer) clearInterval(pollTimer);
+      }
+
+      async function startVote(contestantId) {
+        const c = contestants.find((x) => x.id === contestantId);
+        document.getElementById("mTitle").textContent = `Vote for ${c.name}`;
+        document.getElementById("statusText").textContent = "Generating virtual account...";
+        openModal();
+        try {
+          const res = await fetch(`${API_BASE}/vote`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contestant_id: contestantId })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Unable to create session");
+
+          activeSession = { session_id: data.session_id, contestant_id: contestantId, account_number: data.account_number };
+          document.getElementById("acctNum").textContent = data.account_number;
+          document.getElementById("bankMeta").textContent = `${data.bank_name} • ${data.account_name}`;
+          document.getElementById("statusText").textContent = "Transfer made? Tap Verify Payment.";
+          startPolling();
+        } catch (e) {
+          document.getElementById("statusText").textContent = "Could not create payment session.";
+          toast("Session creation failed");
+        }
+      }
+
+      async function verifyPayment() {
+        if (!activeSession) return;
+        document.getElementById("statusText").textContent = "Checking payment status...";
+        await checkVoteStatus(true);
+      }
+
+      async function checkVoteStatus(isManual = false) {
+        if (!activeSession) return;
+        try {
+          const res = await fetch(`${API_BASE}/vote-status/${activeSession.session_id}`);
+          const data = await res.json();
+          if (!res.ok) throw new Error("Unable to verify");
+
+          if (data.status === "paid") {
+            const c = contestants.find((x) => x.id === data.contestant_id);
+            if (c) c.total_votes += Number(data.votes_credited || 0);
+            render();
+            document.getElementById("statusText").textContent = "Payment confirmed. Redirecting to dashboard...";
+            toast(`+${data.votes_credited} votes added`);
+            setTimeout(() => {
+              closeModal();
+              window.location.hash = "dashboard";
+            }, 900);
+            return;
+          }
+
+          if (data.status === "expired") {
+            document.getElementById("statusText").textContent = "Session expired. Please create a new vote session.";
+            toast("Session expired");
+            if (pollTimer) clearInterval(pollTimer);
+            return;
+          }
+
+          if (isManual) toast("Payment not confirmed yet");
+          document.getElementById("statusText").textContent = "Still pending. Complete transfer, then verify again.";
+        } catch (_) {
+          if (isManual) toast("Verification failed");
+        }
+      }
+
+      function startPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(() => checkVoteStatus(false), 3000);
+      }
+
+      document.getElementById("verifyBtn").addEventListener("click", verifyPayment);
+      document.getElementById("closeBtn").addEventListener("click", closeModal);
+      document.getElementById("overlay").addEventListener("click", (e) => {
+        if (e.target.id === "overlay") closeModal();
+      });
+      document.getElementById("copyBtn").addEventListener("click", async () => {
+        const txt = activeSession?.account_number;
+        if (!txt) return;
+        await navigator.clipboard.writeText(txt);
+        toast("Account number copied");
+      });
+
+      render();
+    </script>
+  </body>
+</html>
