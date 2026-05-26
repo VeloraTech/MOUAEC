@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Learn how to vote in MOUAEC Week 2025. Get answers to FAQs, see the voting schedule, meet our sponsors, and understand the voting mechanics for Ambassador of MOUAEC."
+    />
+    <meta
+      name="keywords"
+      content="how to vote, MOUAEC voting guide, event schedule, FAQ, sponsors, voting mechanics, MOUAU entrepreneurship, voting instructions"
+    />
+    <meta name="author" content="MOUAU Entrepreneurship Club" />
+    <meta
+      name="robots"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    />
+    <meta name="theme-color" content="#07080d" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How to Vote - MOUAEC Week 2025" />
+    <meta
+      property="og:description"
+      content="Complete guide to voting in MOUAEC Week 2025. Learn the voting process, schedules, and meet our amazing sponsors!"
+    />
+    <meta property="og:url" content="https://mouau.edu.ng/voting/info" />
+    <meta property="og:site_name" content="MOUAU Entrepreneurship Club" />
+    <meta
+      property="og:image"
+      content="https://mouau.edu.ng/images/mouau-info-og.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="MOUAEC Week - Voting Guide & Information"
+    />
+    <meta
+      name="twitter:description"
+      content="Complete voting guide, FAQs, schedule, and sponsor information for MOUAEC Week 2025. Everything you need to know!"
+    />
+    <meta
+      name="twitter:image"
+      content="https://mouau.edu.ng/images/mouau-info-twitter.jpg"
+    />
+    <meta name="twitter:creator" content="@MOUAU_Official" />
+    <title>
+      Voting Guide & Information - MOUAEC Week 2025 | How to Vote | FAQs |
+      Schedule
+    </title>
+    <link rel="canonical" href="https://mouau.edu.ng/voting/info" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #07080d;
+        color: #eeeef5;
+        font-family: "DM Mono", monospace;
+        overflow-x: hidden;
+      }
+
+      /* ── shared ── */
+      .sv-label {
+        font-family: "DM Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .sv-label::before {
+        content: "";
+        width: 20px;
+        height: 1px;
+        background: currentColor;
+        flex-shrink: 0;
+      }
+
+      /* ════════════════════════════════════════════
+   SECTION 1 — HOW IT WORKS
+════════════════════════════════════════════ */
+      #hiw {
+        background: #07080d;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 7rem 6vw;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* faint grid — same as horizontal scroll bg */
+      #hiw::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+          );
+        background-size: 52px 52px;
+      }
+
+      #hiw .hiw-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 2rem;
+        margin-bottom: 5rem;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+      }
+
+      #hiw .hiw-head-left .sv-label {
+        color: #4caf7d;
+        margin-bottom: 1.2rem;
+      }
+
+      #hiw .hiw-title {
+        font-family: "Syne", sans-serif;
+        font-weight: 800;
+        font-size: clamp(2.2rem, 4vw, 3.8rem);
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+        max-width: 480px;
+      }
+
+      #hiw .hiw-head-right {
+        font-family: "DM Mono", monospace;
+        font-size: 0.75rem;
+        color: #3a3a4a;
+        line-height: 1.8;
+        max-width: 280px;
+        padding-bottom: 0.25rem;
+      }
+
+      /* step grid */
+      #hiw .hiw-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+      }
+
+      #hiw .hiw-step {
+        padding: 2.5rem 2rem;
+        background: #0a0b11;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.3s ease;
+      }
+      #hiw .hiw-step:hover {
+        background: #0d0e16;
+      }
+
+      /* color per step — MOUAU green & gold */
+      #hiw .hiw-step:nth-child(1) {
+        --c: #4caf7d;
+      }
+      #hiw .hiw-step:nth-child(2) {
+        --c: #d4a832;
+      }
+      #hiw .hiw-step:nth-child(3) {
+        --c: #2e8b57;
+      }
+      #hiw .hiw-step:nth-child(4) {
+        --c: #e8c84a;
+      }
+
+      /* big faded number */
+      #hiw .hiw-step::before {
+        content: attr(data-n);
+        position: absolute;
+        bottom: -1rem;
+        right: -0.5rem;
+        font-family: "Syne", sans-serif;
+        font-weight: 800;
+        font-size: 6rem;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        color: var(--c);
+        opacity: 0.07;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      /* top accent line */
+      #hiw .hiw-step::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--c);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      #hiw .hiw-step:hover::after {
+        opacity: 1;
+      }
+
+      #hiw .step-num {
+        font-family: "Syne", sans-serif;
+        font-weight: 800;
+        font-size: 0.7rem;
+        letter-spacing: 0.15em;
+        color: var(--c);
+        margin-bottom: 1.5rem;
+        display: block;
+      }
+
+      #hiw .step-icon {
+        width: 36px;
+        height: 36px;
+        stroke: var(--c);
+        fill: none;
+        stroke-width: 1.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        margin-bottom: 1.2rem;
+        display: block;
+        opacity: 0.7;
+      }
+
+      #hiw .step-title {
+        font-family: "Syne", sans-serif;
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: -0.01em;
+        color: #eeeef5;
+        margin-bottom: 0.8rem;
+        line-height: 1.2;
+      }
+
+      #hiw .step-body {
+        font-size: 0.72rem;
+        color: #3a3a4a;
+        line-height: 1.85;
+      }
+
+      @media (max-width: 800px) {
+        #hiw .hiw-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 480px) {
+        #hiw .hiw-grid {
+          grid-template-columns: 1fr;
+        }
+        #hiw {
+          padding: 5rem 1.5rem;
+        }
+      }
+
+      /* ════════════════════════════════════════════
+   SECTION 2 — HYPE / SOCIAL PROOF
+════════════════════════════════════════════ */
+      #hype {
+        background: #07080d;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 7rem 6vw;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* diagonal stripe texture */
+      #hype::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          -55deg,
+          transparent,
+          transparent 40px,
+          rgba(255, 255, 255, 0.012) 40px,
+          rgba(255, 255, 255, 0.012) 41px
+        );
+      }
+
+      #hype .hype-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 2rem;
+        margin-bottom: 5rem;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+      }
+
+      #hype .hype-head-left .sv-label {
+        color: #2e8b57;
+        margin-bottom: 1.2rem;
+      }
+
+      #hype .hype-title {
+        font-family: "Syne", sans-serif;
+        font-weight: 800;
+        font-size: clamp(2.2rem, 4vw, 3.8rem);
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+        max-width: 520px;
+      }
+
+      /* live badge */
+      #hype .hype-live {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.8rem;
+        background: rgba(46, 139, 87, 0.1);
+        border: 1px solid rgba(46, 139, 87, 0.25);
+        border-radius: 2px;
+        font-size: 0.62rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #4caf7d;
+        margin-bottom: 1rem;
+      }
+      #hype .live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #4caf7d;
+        animation: hype-pulse 1.3s ease-in-out infinite;
+      }
+      @keyframes hype-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* stats row */
+      #hype .hype-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1px;
+        position: relative;
+        z-index: 1;
+      }
+
+      #hype .hype-stat {
+        background: #0a0b11;
+        padding: 2.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.3s;
+      }
+      #hype .hype-stat:hover {
+        background: #0d0e16;
+      }
+
+      #hype .hype-stat:nth-child(1) {
+        --c: #4caf7d;
+      }
+      #hype .hype-stat:nth-child(2) {
+        --c: #d4a832;
+      }
+      #hype .hype-stat:nth-child(3) {
+        --c: #2e8b57;
+      }
+      #hype .hype-stat:nth-child(4) {
+        --c: #e8c84a;
+      }
+
+      #hype .hype-stat::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--c);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      #hype .hype-stat:hover::after {
+        opacity: 1;
+      }
+
+      #hype .stat-num {
+        font-family: "Syne", sans-serif;
+        font-weight: 800;
+        font-size: clamp(2.2rem, 4vw, 3.5rem);
+        letter-spacing: -0.04em;
+        line-height: 1;
+        color: var(--c);
+        margin-bottom: 0.6rem;
+        display: block;
+      }
+
+      #hype .stat-label {
+        font-family: "DM Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #eeeef5;
+        display: block;
+        margin-bottom: 0.6rem;
+      }
+
+      #hype .stat-desc {
+        font-size: 0.7rem;
+        color: #3a3a4a;
+        line-height: 1.8;
+      }
+
+      /* bottom quote strip */
+      #hype .hype-strip {
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 4px;
+        overflow: hidden;
+        background: #0a0b11;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      #hype .hype-strip-text {
+        padding: 2rem 2.5rem;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      #hype .hype-strip-text p {
+        font-family: "Syne", sans-serif;
+        font-weight: 700;
+        font-size: clamp(1rem, 2vw, 1.4rem);
+        letter-spacing: -0.01em;
+        line-height: 1.4;
+        color: #eeeef5;
+      }
+
+      #hype .hype-strip-text p em {
+        font-style: normal;
+        color: #d4a832;
+      }
+
+      #hype .hype-strip-cta {
+        padding: 2rem 2.5rem;
+        white-space: nowrap;
+      }
+
+      #hype .hype-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.75rem 1.5rem;
+        background: rgba(212, 168, 50, 0.1);
+        border: 1px solid rgba(212, 168, 50, 0.3);
+        border-radius: 2px;
+        color: #d4a832;
+        font-family: "DM Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-decoration: none;
+      }
+      #hype .hype-btn:hover {
+        background: rgba(212, 168, 50, 0.18);
+        border-color: rgba(212, 168, 50, 0.5);
+      }
+      #hype .hype-btn svg {
+        width: 12px;
+        height: 12px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+      }
+
+      @media (max-width: 800px) {
+        #hype .hype-stats {
+          grid-template-columns: 1fr 1fr;
+        }
+        #hype .hype-strip {
+          grid-template-columns: 1fr;
+          border: none;
+          gap: 0;
+        }
+        #hype .hype-strip-text {
+          border-right: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        #hype .hype-strip-cta {
+          padding: 1.5rem 2rem;
+        }
+      }
+      @media (max-width: 480px) {
+        #hype .hype-stats {
+          grid-template-columns: 1fr;
+        }
+        #hype {
+          padding: 5rem 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══════════════════════════════════════════
+     ▼ SECTION 1 — HOW IT WORKS (drop here) ▼
+══════════════════════════════════════════ -->
+    <section id="hiw">
+      <div class="hiw-head">
+        <div class="hiw-head-left">
+          <div class="sv-label" style="color: #4caf7d">How It Works</div>
+          <h2 class="hiw-title">Apply. Vote. Watch. Win.</h2>
+        </div>
+        <p class="hiw-head-right">
+          Four simple steps. One electric week. No luck involved — just numbers
+          and the people behind them.
+        </p>
+      </div>
+
+      <div class="hiw-grid">
+        <div class="hiw-step" data-n="01">
+          <span class="step-num">01 — Apply</span>
+          <svg class="step-icon" viewBox="0 0 24 24">
+            <path
+              d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+            />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          <div class="step-title">Apply &amp; Get Listed</div>
+          <p class="step-body">
+            Submit your profile and go live on the dashboard. Your campaign
+            starts the moment you're verified — and so does the competition.
+          </p>
+        </div>
+
+        <div class="hiw-step" data-n="02">
+          <span class="step-num">02 — Vote</span>
+          <svg class="step-icon" viewBox="0 0 24 24">
+            <rect x="2" y="5" width="20" height="14" rx="2" />
+            <line x1="2" y1="10" x2="22" y2="10" />
+          </svg>
+          <div class="step-title">Pay to Vote</div>
+          <p class="step-body">
+            Supporters vote by paying per vote. No caps. Every payment is
+            instant — and every vote shows up on the scoreboard in real time.
+          </p>
+        </div>
+
+        <div class="hiw-step" data-n="03">
+          <span class="step-num">03 — Watch</span>
+          <svg class="step-icon" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <div class="step-title">Watch It Live</div>
+          <p class="step-body">
+            The dashboard updates the moment a vote lands. Rankings shift. Leads
+            shrink. No one knows the winner until the very last second.
+          </p>
+        </div>
+
+        <div class="hiw-step" data-n="04">
+          <span class="step-num">04 — Win</span>
+          <svg class="step-icon" viewBox="0 0 24 24">
+            <path
+              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+            />
+          </svg>
+          <div class="step-title">Winner Takes All</div>
+          <p class="step-body">
+            Highest votes at the end of the week wins. Monetisation, a full year
+            of business support, and free internet. Real rewards. No trophy.
+          </p>
+        </div>
+      </div>
+    </section>
+    <!-- ▲ SECTION 1 ENDS ▲ -->
+
+    <!-- ══════════════════════════════════════════
+     ▼ SECTION 2 — HYPE / SOCIAL PROOF (drop here) ▼
+══════════════════════════════════════════ -->
+    <section id="hype">
+      <div class="hype-head">
+        <div>
+          <div class="hype-live">
+            <div class="live-dot"></div>
+            Voting Live Now
+          </div>
+          <div class="sv-label" style="color: #2e8b57; margin-bottom: 1.2rem">
+            The Energy Is Real
+          </div>
+          <h2 class="hype-title">One Week.<br />The Whole Campus Watching.</h2>
+        </div>
+      </div>
+
+      <div class="hype-stats">
+        <div class="hype-stat">
+          <span class="stat-num">10K+</span>
+          <span class="stat-label">Votes Cast</span>
+          <p class="stat-desc">
+            Every Students' Week the numbers keep growing. This year is no
+            different.
+          </p>
+        </div>
+
+        <div class="hype-stat">
+          <span class="stat-num">6hrs</span>
+          <span class="stat-label">Last Year's Final Shift</span>
+          <p class="stat-desc">
+            The winner pulled ahead in the final six hours. The scoreboard
+            doesn't slow down.
+          </p>
+        </div>
+
+        <div class="hype-stat">
+          <span class="stat-num">3</span>
+          <span class="stat-label">Life-Changing Prizes</span>
+          <p class="stat-desc">
+            Monetisation. Free business boost. Free internet. Real tools. Real
+            head start.
+          </p>
+        </div>
+
+        <div class="hype-stat">
+          <span class="stat-num">1wk</span>
+          <span class="stat-label">That's All It Takes</span>
+          <p class="stat-desc">
+            Seven days. One winner. An opportunity that comes once a year. Don't
+            sit this one out.
+          </p>
+        </div>
+      </div>
+
+      <div class="hype-strip">
+        <div class="hype-strip-text">
+          <p>
+            Lectures pause. Group chats blow up. The dashboard becomes
+            <em>everyone's homepage.</em> Be here for it.
+          </p>
+        </div>
+        <div class="hype-strip-cta">
+          <a href="#" class="hype-btn">
+            Cast Your Vote
+            <svg viewBox="0 0 24 24">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+    <!-- ▲ SECTION 2 ENDS ▲ -->
+  </body>
+</html>
