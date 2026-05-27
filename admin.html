@@ -857,33 +857,32 @@
         grid.innerHTML = list
           .map(
             (c, i) => `
-        <button
-          class="contestant-row"
-          id="row-${c.id}"
-          data-id="${c.id}"
-          data-name="${escHtml(c.name)}"
-          data-ref="${escHtml(c.reference_code)}"
-          data-total="${c.total_votes}"
-        >
-          <span class="rank">${i + 1}</span>
-          <div class="contestant-info">
-            <div class="contestant-name">${escHtml(c.name)}</div>
-            <div class="contestant-meta">
-              ${c.department ? `<span class="contestant-dept">${escHtml(c.department)}</span>` : ""}
-              <span class="contestant-ref">${escHtml(c.reference_code)}</span>
-            </div>
-          </div>
-          <div>
-            <div class="vote-count">${c.total_votes.toLocaleString()}</div>
-            <div class="vote-label">votes</div>
-          </div>
-          <span class="select-badge">SELECT</span>
-        </button>
-      `,
+    <button
+      class="contestant-row"
+      id="row-${c.id}"
+      data-id="${c.id}"
+      data-name="${escHtml(c.name)}"
+      data-ref="${escHtml(c.reference_code)}"
+      data-total="${c.total_votes}"
+    >
+      <span class="rank">${i + 1}</span>
+      <div class="contestant-info">
+        <div class="contestant-name">${escHtml(c.name)}</div>
+        <div class="contestant-meta">
+          ${c.department ? `<span class="contestant-dept">${escHtml(c.department)}</span>` : ""}
+          <span class="contestant-ref">${escHtml(c.reference_code)}</span>
+        </div>
+      </div>
+      <div>
+        <div class="vote-count">${c.total_votes.toLocaleString()}</div>
+        <div class="vote-label">votes</div>
+      </div>
+      <span class="select-badge">SELECT</span>
+    </button>
+  `,
           )
           .join("");
 
-        // attach click listeners after render
         document.querySelectorAll(".contestant-row").forEach((btn) => {
           btn.addEventListener("click", () => {
             selectContestant(
@@ -894,145 +893,135 @@
             );
           });
         });
-        // ── Select contestant ────────────────────────────────
-        function selectContestant(id, name, ref, total) {
-          if (selectedId)
-            document
-              .getElementById(`row-${selectedId}`)
-              ?.classList.remove("selected");
-          selectedId = id;
-          selectedName = name;
-          selectedRef = ref;
-          selectedTotal = total;
+      } // ← renderContestants ends HERE
 
-          document.getElementById(`row-${id}`)?.classList.add("selected");
-          document.getElementById("panel-name").textContent =
-            `${name} · ${ref}`;
-          document.getElementById("input-panel").classList.add("visible");
-          document.getElementById("amount-input").focus();
-          onAmountChange();
-        }
+      // ── Select contestant ────────────────────────────────
+      function selectContestant(id, name, ref, total) {
+        if (selectedId)
+          document
+            .getElementById(`row-${selectedId}`)
+            ?.classList.remove("selected");
+        selectedId = id;
+        selectedName = name;
+        selectedRef = ref;
+        selectedTotal = total;
 
-        // ── Amount input ─────────────────────────────────────
-        function onAmountChange() {
-          const raw =
-            parseInt(document.getElementById("amount-input").value, 10) || 0;
-          const votes = Math.floor(raw / VOTE_PRICE);
-          const btnEl = document.getElementById("btn-credit");
-          const preEl = document.getElementById("votes-preview");
-
-          pendingAmount = raw;
-          pendingVotes = votes;
-
-          if (raw <= 0) {
-            preEl.textContent = "";
-            btnEl.disabled = true;
-          } else if (votes === 0) {
-            preEl.textContent = `< ₦${VOTE_PRICE} — 0 votes`;
-            preEl.style.color = "var(--red)";
-            btnEl.disabled = true;
-          } else {
-            preEl.textContent = `= ${votes} vote${votes !== 1 ? "s" : ""}`;
-            preEl.style.color = "var(--green)";
-            btnEl.disabled = false;
-          }
-        }
-
-        // ── Modal ────────────────────────────────────────────
-        function openConfirm() {
-          if (!selectedId || pendingVotes === 0) return;
-          document.getElementById("m-name").textContent = selectedName;
-          document.getElementById("m-ref").textContent = selectedRef;
-          document.getElementById("m-amount").textContent =
-            `₦${pendingAmount.toLocaleString()}`;
-          document.getElementById("m-votes").textContent = `+${pendingVotes}`;
-          document.getElementById("btn-confirm").disabled = false;
-          document.getElementById("modal").classList.add("visible");
-        }
-
-        function closeModal() {
-          document.getElementById("modal").classList.remove("visible");
-        }
-
-        // ── Submit vote — direct Supabase writes ─────────────
-        async function submitVote() {
-          const confirmBtn = document.getElementById("btn-confirm");
-          confirmBtn.disabled = true;
-          confirmBtn.textContent = "Recording…";
-
-          try {
-            // 1. Increment total_votes on the contestant
-            const { error: updateErr } = await sb
-              .from("contestants")
-              .update({ total_votes: selectedTotal + pendingVotes })
-              .eq("id", selectedId);
-
-            if (updateErr) throw new Error(updateErr.message);
-
-            // 2. Append immutable log row
-            const { error: logErr } = await sb.from("vote_logs").insert({
-              contestant_id: selectedId,
-              amount_paid: pendingAmount,
-              votes_added: pendingVotes,
-            });
-
-            if (logErr) throw new Error(logErr.message);
-
-            // 3. Update local state so next credit in same session is correct
-            selectedTotal += pendingVotes;
-
-            closeModal();
-            showToast(
-              "Votes Credited ✓",
-              `+${pendingVotes} votes → ${selectedName} (total: ${selectedTotal.toLocaleString()})`,
-              "success",
-            );
-
-            // Reset input
-            document.getElementById("amount-input").value = "";
-            document.getElementById("votes-preview").textContent = "";
-            document.getElementById("btn-credit").disabled = true;
-
-            // Refresh leaderboard
-            await loadContestants();
-
-            // Re-highlight the same contestant at its new rank
-            document
-              .getElementById(`row-${selectedId}`)
-              ?.classList.add("selected");
-            document.getElementById("panel-name").textContent =
-              `${selectedName} · ${selectedRef}`;
-          } catch (err) {
-            showToast("Failed", err.message, "error");
-          } finally {
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = "Confirm & Credit";
-          }
-        }
-
-        // ── Toast ────────────────────────────────────────────
-        function showToast(title, body, type = "success") {
-          const el = document.createElement("div");
-          el.className = `toast ${type}`;
-          el.innerHTML = `<div class="toast-title">${escHtml(title)}</div><div class="toast-body">${escHtml(body)}</div>`;
-          document.getElementById("toast-container").appendChild(el);
-          setTimeout(() => el.remove(), 5000);
-        }
-
-        function escHtml(str) {
-          return String(str)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;");
-        }
-
-        document.getElementById("modal").addEventListener("click", (e) => {
-          if (e.target === e.currentTarget) closeModal();
-        });
-
-        init();
+        document.getElementById(`row-${id}`)?.classList.add("selected");
+        document.getElementById("panel-name").textContent = `${name} · ${ref}`;
+        document.getElementById("input-panel").classList.add("visible");
+        document.getElementById("amount-input").focus();
+        onAmountChange();
       }
+
+      // ── Amount input ─────────────────────────────────────
+      function onAmountChange() {
+        const raw =
+          parseInt(document.getElementById("amount-input").value, 10) || 0;
+        const votes = Math.floor(raw / VOTE_PRICE);
+        const btnEl = document.getElementById("btn-credit");
+        const preEl = document.getElementById("votes-preview");
+
+        pendingAmount = raw;
+        pendingVotes = votes;
+
+        if (raw <= 0) {
+          preEl.textContent = "";
+          btnEl.disabled = true;
+        } else if (votes === 0) {
+          preEl.textContent = `< ₦${VOTE_PRICE} — 0 votes`;
+          preEl.style.color = "var(--red)";
+          btnEl.disabled = true;
+        } else {
+          preEl.textContent = `= ${votes} vote${votes !== 1 ? "s" : ""}`;
+          preEl.style.color = "var(--green)";
+          btnEl.disabled = false;
+        }
+      }
+
+      // ── Modal ────────────────────────────────────────────
+      function openConfirm() {
+        if (!selectedId || pendingVotes === 0) return;
+        document.getElementById("m-name").textContent = selectedName;
+        document.getElementById("m-ref").textContent = selectedRef;
+        document.getElementById("m-amount").textContent =
+          `₦${pendingAmount.toLocaleString()}`;
+        document.getElementById("m-votes").textContent = `+${pendingVotes}`;
+        document.getElementById("btn-confirm").disabled = false;
+        document.getElementById("modal").classList.add("visible");
+      }
+
+      function closeModal() {
+        document.getElementById("modal").classList.remove("visible");
+      }
+
+      // ── Submit vote ──────────────────────────────────────
+      async function submitVote() {
+        const confirmBtn = document.getElementById("btn-confirm");
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Recording…";
+
+        try {
+          const { error: updateErr } = await sb
+            .from("contestants")
+            .update({ total_votes: selectedTotal + pendingVotes })
+            .eq("id", selectedId);
+          if (updateErr) throw new Error(updateErr.message);
+
+          const { error: logErr } = await sb.from("vote_logs").insert({
+            contestant_id: selectedId,
+            amount_paid: pendingAmount,
+            votes_added: pendingVotes,
+          });
+          if (logErr) throw new Error(logErr.message);
+
+          selectedTotal += pendingVotes;
+          closeModal();
+          showToast(
+            "Votes Credited ✓",
+            `+${pendingVotes} votes → ${selectedName} (total: ${selectedTotal.toLocaleString()})`,
+            "success",
+          );
+
+          document.getElementById("amount-input").value = "";
+          document.getElementById("votes-preview").textContent = "";
+          document.getElementById("btn-credit").disabled = true;
+
+          await loadContestants();
+          document
+            .getElementById(`row-${selectedId}`)
+            ?.classList.add("selected");
+          document.getElementById("panel-name").textContent =
+            `${selectedName} · ${selectedRef}`;
+        } catch (err) {
+          showToast("Failed", err.message, "error");
+        } finally {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = "Confirm & Credit";
+        }
+      }
+
+      // ── Toast ────────────────────────────────────────────
+      function showToast(title, body, type = "success") {
+        const el = document.createElement("div");
+        el.className = `toast ${type}`;
+        el.innerHTML = `<div class="toast-title">${escHtml(title)}</div><div class="toast-body">${escHtml(body)}</div>`;
+        document.getElementById("toast-container").appendChild(el);
+        setTimeout(() => el.remove(), 5000);
+      }
+
+      function escHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      document.getElementById("modal").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) closeModal();
+      });
+
+      init();
     </script>
   </body>
 </html>
