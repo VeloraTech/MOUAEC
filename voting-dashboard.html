@@ -1330,14 +1330,14 @@
                 <div>
                   <div class="poll-name">${escHtml(c.name)}</div>
 
-                  <div class="poll-dept">
+                  <div class="poll-brand">
                     ${escHtml(c.department || "—")}
                   </div>
 
                   ${
                     c.brand_name
                       ? `
-                        <div class="poll-brand">
+                        <div class="poll-dept">
                           ${escHtml(c.brand_name)}
                         </div>
                       `
