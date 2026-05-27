@@ -1134,15 +1134,15 @@
           <div class="account-box">
             <div class="account-row">
               <span class="account-key">Bank</span>
-              <span class="account-val" id="m-bank">Moniepoint</span>
+              <span class="account-val" id="m-bank">Palmpay</span>
             </div>
             <div class="account-row">
               <span class="account-key">Account No.</span>
-              <span class="account-val" id="m-acct">7042319239</span>
+              <span class="account-val" id="m-acct">8026996508</span>
             </div>
             <div class="account-row">
               <span class="account-key">Account Name</span>
-              <span class="account-val" id="m-name">MOUAEC VOTES</span>
+              <span class="account-val" id="m-name">Nweke Chibueze David</span>
             </div>
             <div class="account-row">
               <span class="account-key">Narration / Reference</span>
@@ -1212,9 +1212,9 @@
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpqa3pkZ2RvZW5uaXJ1aWd3emZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjU4NzEsImV4cCI6MjA5NTQwMTg3MX0.7IakZ6r0AwhJpiZ02tEMNBnY521bWzLffVwIBjD9s2I";
 
       // Payment account details
-      const BANK_NAME = "Moniepoint";
-      const ACCOUNT_NO = "7042319239";
-      const ACCOUNT_NAME = "MOUAEC VOTES";
+      const BANK_NAME = "Palmpay";
+      const ACCOUNT_NO = "8026996508";
+      const ACCOUNT_NAME = "Nweke Chibueze";
       const WHATSAPP_NO = "2347042319239"; // international format, no +
 
       const { createClient } = supabase;
@@ -1230,7 +1230,16 @@
         const { data, error } = await sb
           .from("contestants")
           .select(
-            "id, name, department, image_url, reference_code, total_votes, created_at",
+            `
+        id,
+        name,
+        department,
+        image_url,
+        reference_code,
+        total_votes,
+        created_at,
+        brand_name
+      `,
           )
           .order("total_votes", { ascending: false });
 
@@ -1240,6 +1249,7 @@
         }
 
         contestants = data || [];
+
         updateStats();
         renderPoll();
         renderChart();
@@ -1250,11 +1260,15 @@
       // ─── Stats strip ─────────────────────────────────────────
       function updateStats() {
         const total = contestants.reduce((s, c) => s + (c.total_votes || 0), 0);
+
         document.getElementById("stat-total").textContent =
           total.toLocaleString();
+
         document.getElementById("stat-contestants").textContent =
           contestants.length;
+
         const leader = contestants[0];
+
         document.getElementById("stat-leader").textContent = leader
           ? firstName(leader.name)
           : "—";
@@ -1263,13 +1277,18 @@
       // ─── Poll View ───────────────────────────────────────────
       function renderPoll() {
         const container = document.getElementById("poll-view");
+
         const totalVotes = contestants.reduce(
           (s, c) => s + (c.total_votes || 0),
           0,
         );
 
         if (!contestants.length) {
-          container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--muted)">No contestants yet.</div>`;
+          container.innerHTML = `
+        <div style="padding:40px;text-align:center;color:var(--muted)">
+          No contestants yet.
+        </div>
+      `;
           return;
         }
 
@@ -1278,44 +1297,75 @@
             const pct = totalVotes
               ? ((c.total_votes / totalVotes) * 100).toFixed(1)
               : "0.0";
+
             const rankClass =
               i === 0 ? "rank-1" : i === 1 ? "rank-2" : i === 2 ? "rank-3" : "";
+
             const rankLabel =
               i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
+
             const goldClass =
               i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
 
             return `
           <div class="poll-item" onclick="openVoteModal('${c.id}')">
             <div class="poll-item-top">
+
               <div class="poll-left">
                 <span class="poll-rank ${goldClass}">${rankLabel}</span>
+
                 <div class="poll-avatar">
                   ${
                     c.image_url
-                      ? `<img src="${escHtml(c.image_url)}" alt="${escHtml(c.name)}" />`
+                      ? `
+                        <img
+                          src="${escHtml(c.image_url)}"
+                          alt="${escHtml(c.name)}"
+                        />
+                      `
                       : escHtml(c.name.charAt(0).toUpperCase())
                   }
                 </div>
+
                 <div>
                   <div class="poll-name">${escHtml(c.name)}</div>
-                  <div class="poll-dept">${escHtml(c.department || "—")}</div>
+
+                  <div class="poll-dept">
+                    ${escHtml(c.department || "—")}
+                  </div>
+
+                  ${
+                    c.brand_name
+                      ? `
+                        <div class="poll-brand">
+                          ${escHtml(c.brand_name)}
+                        </div>
+                      `
+                      : ""
+                  }
                 </div>
               </div>
+
               <div class="poll-right">
-                <div class="poll-votes">${(c.total_votes || 0).toLocaleString()} votes</div>
+                <div class="poll-votes">
+                  ${(c.total_votes || 0).toLocaleString()} votes
+                </div>
+
                 <div class="poll-pct">${pct}%</div>
               </div>
             </div>
+
             <div class="poll-bar-track">
-              <div class="poll-bar-fill ${rankClass}" data-pct="${pct}"></div>
+              <div
+                class="poll-bar-fill ${rankClass}"
+                data-pct="${pct}"
+              ></div>
             </div>
           </div>
         `;
           })
           .join("");
 
-        // Animate bars after DOM paint
         requestAnimationFrame(() => {
           document.querySelectorAll(".poll-bar-fill").forEach((el) => {
             el.style.width = el.dataset.pct + "%";
@@ -1326,6 +1376,7 @@
       // ─── Chart View ──────────────────────────────────────────
       function renderChart() {
         const inner = document.getElementById("chart-inner");
+
         if (!contestants.length) {
           inner.innerHTML = "";
           return;
@@ -1335,22 +1386,33 @@
           ...contestants.map((c) => c.total_votes || 0),
           1,
         );
-        const MAX_H = 200; // px
+
+        const MAX_H = 200;
 
         inner.innerHTML = contestants
           .map((c) => {
             const h = Math.max(4, ((c.total_votes || 0) / maxVotes) * MAX_H);
+
             return `
           <div class="bar-group" onclick="openVoteModal('${c.id}')">
-            <div class="bar-votes-label">${(c.total_votes || 0).toLocaleString()}</div>
-            <div class="bar-col" data-h="${h}" style="height:0"></div>
-            <div class="bar-label">${escHtml(firstName(c.name))}</div>
+            <div class="bar-votes-label">
+              ${(c.total_votes || 0).toLocaleString()}
+            </div>
+
+            <div
+              class="bar-col"
+              data-h="${h}"
+              style="height:0"
+            ></div>
+
+            <div class="bar-label">
+              ${escHtml(firstName(c.name))}
+            </div>
           </div>
         `;
           })
           .join("");
 
-        // Animate bars
         requestAnimationFrame(() => {
           document.querySelectorAll(".bar-col").forEach((el) => {
             el.style.height = el.dataset.h + "px";
@@ -1363,7 +1425,11 @@
         const grid = document.getElementById("cards-grid");
 
         if (!contestants.length) {
-          grid.innerHTML = `<div style="color:var(--muted)">No contestants found.</div>`;
+          grid.innerHTML = `
+        <div style="color:var(--muted)">
+          No contestants found.
+        </div>
+      `;
           return;
         }
 
@@ -1377,6 +1443,7 @@
                   : i === 2
                     ? "🥉 3rd"
                     : `#${i + 1}`;
+
             const rankClass =
               i === 0
                 ? "rank-1"
@@ -1385,6 +1452,7 @@
                   : i === 2
                     ? "rank-3"
                     : "rank-other";
+
             const dateStr = c.created_at
               ? new Date(c.created_at).toLocaleDateString("en-NG", {
                   day: "numeric",
@@ -1395,28 +1463,78 @@
 
             return `
           <div class="card" onclick="openVoteModal('${c.id}')">
+
             <div class="card-img-wrap">
               ${
                 c.image_url
-                  ? `<img class="card-img" src="${escHtml(c.image_url)}" alt="${escHtml(c.name)}" loading="lazy" />`
-                  : `<div class="card-img-placeholder">${escHtml(c.name.charAt(0).toUpperCase())}</div>`
+                  ? `
+                    <img
+                      class="card-img"
+                      src="${escHtml(c.image_url)}"
+                      alt="${escHtml(c.name)}"
+                      loading="lazy"
+                    />
+                  `
+                  : `
+                    <div class="card-img-placeholder">
+                      ${escHtml(c.name.charAt(0).toUpperCase())}
+                    </div>
+                  `
               }
-              <span class="card-rank-badge ${rankClass}">${rankLabel}</span>
+
+              <span class="card-rank-badge ${rankClass}">
+                ${rankLabel}
+              </span>
             </div>
+
             <div class="card-body">
-              <div class="card-name">${escHtml(c.name)}</div>
-              <div class="card-dept">${escHtml(c.department || "—")}</div>
+
+              <div class="card-name">
+                ${escHtml(c.name)}
+              </div>
+
+              <div class="card-dept">
+                ${escHtml(c.department || "—")}
+              </div>
+
+              ${
+                c.brand_name
+                  ? `
+                    <div class="card-brand">
+                      ${escHtml(c.brand_name)}
+                    </div>
+                  `
+                  : ""
+              }
+
               <div class="card-meta">
                 <div class="card-votes">
-                  <span class="card-votes-num">${(c.total_votes || 0).toLocaleString()}</span>
-                  <span class="card-votes-label">votes</span>
+                  <span class="card-votes-num">
+                    ${(c.total_votes || 0).toLocaleString()}
+                  </span>
+
+                  <span class="card-votes-label">
+                    votes
+                  </span>
                 </div>
-                <span class="card-ref">${escHtml(c.reference_code || "—")}</span>
+
+                <span class="card-ref">
+                  ${escHtml(c.reference_code || "—")}
+                </span>
               </div>
             </div>
+
             <div class="card-footer">
-              <span class="card-date">Since ${dateStr}</span>
-              <button class="btn-vote" onclick="event.stopPropagation(); openVoteModal('${c.id}')">Vote →</button>
+              <span class="card-date">
+                Since ${dateStr}
+              </span>
+
+              <button
+                class="btn-vote"
+                onclick="event.stopPropagation(); openVoteModal('${c.id}')"
+              >
+                Vote →
+              </button>
             </div>
           </div>
         `;
@@ -1427,19 +1545,26 @@
       // ─── Vote Modal ───────────────────────────────────────────
       function openVoteModal(contestantId) {
         const c = contestants.find((x) => x.id === contestantId);
+
         if (!c) return;
 
         document.getElementById("m-contestant-name").textContent = c.name;
+
         document.getElementById("m-bank").textContent = BANK_NAME;
+
         document.getElementById("m-acct").textContent = ACCOUNT_NO;
+
         document.getElementById("m-name").textContent = ACCOUNT_NAME;
+
         document.getElementById("m-ref").textContent = c.reference_code || "—";
 
         const msg = `Hi, I just voted for ${c.name} (${c.reference_code}). Here is my receipt:`;
+
         document.getElementById("m-wa-link").href =
           `https://wa.me/${WHATSAPP_NO}?text=${encodeURIComponent(msg)}`;
 
         document.getElementById("vote-modal").classList.add("open");
+
         document.body.style.overflow = "hidden";
       }
 
@@ -1451,33 +1576,41 @@
       function copyAccountNumber() {
         navigator.clipboard.writeText(ACCOUNT_NO).then(() => {
           const btn = document.querySelector(".btn-copy");
+
           btn.textContent = "✓ Copied!";
-          setTimeout(() => (btn.textContent = "📋 Copy Acct No."), 2000);
+
+          setTimeout(() => {
+            btn.textContent = "📋 Copy Acct No.";
+          }, 2000);
         });
       }
 
       // ─── View switcher ────────────────────────────────────────
       function switchView(view) {
         currentView = view;
+
         document.getElementById("poll-view").style.display =
           view === "poll" ? "flex" : "none";
+
         document.getElementById("chart-view").style.display =
           view === "chart" ? "block" : "none";
+
         document
           .getElementById("btn-poll")
           .classList.toggle("active", view === "poll");
+
         document
           .getElementById("btn-chart")
           .classList.toggle("active", view === "chart");
 
         if (view === "chart") {
-          // re-trigger bar animations
           requestAnimationFrame(() => {
             document.querySelectorAll(".bar-col").forEach((el) => {
               el.style.height = "0";
-              requestAnimationFrame(
-                () => (el.style.height = el.dataset.h + "px"),
-              );
+
+              requestAnimationFrame(() => {
+                el.style.height = el.dataset.h + "px";
+              });
             });
           });
         }
@@ -1486,6 +1619,7 @@
       // ─── Timestamp ───────────────────────────────────────────
       function updateTimestamp() {
         const now = new Date();
+
         document.getElementById("last-updated").textContent =
           "Updated " +
           now.toLocaleTimeString("en-NG", {
@@ -1510,11 +1644,14 @@
 
       // Close modal on backdrop click
       document.getElementById("vote-modal").addEventListener("click", (e) => {
-        if (e.target === e.currentTarget) closeModal();
+        if (e.target === e.currentTarget) {
+          closeModal();
+        }
       });
 
       // ─── Boot ─────────────────────────────────────────────────
       fetchAndRender();
+
       refreshInterval = setInterval(fetchAndRender, 30000);
     </script>
   </body>

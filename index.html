@@ -9,7 +9,7 @@
     />
     <meta
       name="keywords"
-      content="MOUAU voting, MOUAEC week, entrepreneurship club, university voting platform, ambassador voting, student elections, live voting"
+      content="MOUAU voting, MOUAU week, MOUAEC week, entrepreneurship club, university voting platform, ambassador voting, student elections, live voting"
     />
     <meta name="author" content="MOUAU Entrepreneurship Club" />
     <meta
@@ -17,16 +17,16 @@
       content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
     />
     <meta name="theme-color" content="#07080d" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="MOUAEC Week - Live Voting Platform" />
+    <meta property="og:title" content="MOUAEC'S Week - Live Voting Platform" />
     <meta
       property="og:description"
-      content="Vote for the Ambassador of MOUAEC 2025. Cast your vote in real-time and watch the live leaderboard. Only on MOUAU's official voting platform."
+      content="Vote for the Ambassador of MOUAEC 2026. Cast your vote in real-time and watch the live leaderboard. Only on MOUAU's official voting platform."
     />
     <meta property="og:url" content="https://mouaec.vercel.app" />
     <meta property="og:site_name" content="MOUAU Entrepreneurship Club" />
@@ -37,7 +37,7 @@
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="MOUAEC Week 2025 - Voting Is Live" />
+    <meta name="twitter:title" content="MOUAEC Week 2026 - Voting Is Live" />
     <meta
       name="twitter:description"
       content="Vote for the Ambassador of MOUAEC. Real-time voting, live leaderboard, and exclusive rewards await!"
@@ -56,7 +56,7 @@
       {
         "@context": "https://schema.org",
         "@type": "Event",
-        "name": "MOUAEC Week 2025 - Ambassador Voting",
+        "name": "MOUAEC Week 2026 - Ambassador Voting",
         "description": "Michael Okpara University of Agriculture Entrepreneurship Club annual week celebration with live voting for Ambassador of MOUAEC",
         "url": "https://mouaec.vercel.app",
         "organizer": {
@@ -65,8 +65,8 @@
           "url": "https://mouaec.vercel.app",
           "logo": "https://mouaec.vercel.app/IMG-20260526-WA0007-removebg-preview.png"
         },
-        "startDate": "2025-05-26",
-        "endDate": "2025-05-30",
+        "startDate": "2026-05-25",
+        "endDate": "2026-05-29",
         "eventStatus": "EventScheduled",
         "eventAttendanceMode": "OnlineEventAttendanceMode",
         "location": {
@@ -191,25 +191,74 @@
         <!-- countdown -->
         <div class="hero-countdown">
           <div class="cd-label">Voting ends in</div>
+
           <div class="cd-units">
             <div class="cd-unit">
-              <div class="cd-num" id="cd-d">05</div>
+              <div class="cd-num" id="cd-d">00</div>
               <div class="cd-tag">Days</div>
             </div>
+
             <div class="cd-unit">
-              <div class="cd-num" id="cd-h">14</div>
+              <div class="cd-num" id="cd-h">00</div>
               <div class="cd-tag">Hrs</div>
             </div>
+
             <div class="cd-unit">
-              <div class="cd-num" id="cd-m">22</div>
+              <div class="cd-num" id="cd-m">00</div>
               <div class="cd-tag">Min</div>
             </div>
+
             <div class="cd-unit">
-              <div class="cd-num" id="cd-s">08</div>
+              <div class="cd-num" id="cd-s">00</div>
               <div class="cd-tag">Sec</div>
             </div>
           </div>
         </div>
+
+        <script>
+          // Countdown target: 26th of current month at 4:00 PM
+          const now = new Date();
+
+          const targetDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            26,
+            16, // 4 PM
+            0,
+            0,
+          );
+
+          const dEl = document.getElementById("cd-d");
+          const hEl = document.getElementById("cd-h");
+          const mEl = document.getElementById("cd-m");
+          const sEl = document.getElementById("cd-s");
+
+          function updateCountdown() {
+            const currentTime = new Date();
+            const diff = targetDate - currentTime;
+
+            if (diff <= 0) {
+              dEl.textContent = "00";
+              hEl.textContent = "00";
+              mEl.textContent = "00";
+              sEl.textContent = "00";
+              return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            dEl.textContent = String(days).padStart(2, "0");
+            hEl.textContent = String(hours).padStart(2, "0");
+            mEl.textContent = String(minutes).padStart(2, "0");
+            sEl.textContent = String(seconds).padStart(2, "0");
+          }
+
+          updateCountdown();
+          setInterval(updateCountdown, 1000);
+        </script>
       </div>
 
       <!-- scroll hint -->
