@@ -1,71 +1,1256 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MOUAEC Voting Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <style>
-      :root { --bg:#f7faf7; --card:#fff; --line:#d9e7dd; --text:#132318; --muted:#607066; --green:#0b6b2f; --green2:#1a8a49; --gold:#c28b1a; }
-      *{box-sizing:border-box;margin:0;padding:0} body{font-family:"DM Sans",sans-serif;background:radial-gradient(circle at top right,#e9f8ef 0%,var(--bg) 45%);color:var(--text)}
-      .wrap{max-width:1120px;margin:0 auto;padding:20px 14px 60px} .hero{border:1px solid var(--line);background:linear-gradient(135deg,#fff,#f2fbf5);border-radius:16px;padding:18px;margin-bottom:14px}
-      .title{font-family:"Syne",sans-serif;font-size:clamp(1.5rem,4vw,2.3rem)} .title span{color:var(--green)} .sub{color:var(--muted);margin-top:6px;font-size:.94rem}
-      .analytics{display:grid;grid-template-columns:1.15fr 1fr;gap:12px;margin-bottom:12px}
-      .panel,.wa-poll,.card{background:var(--card);border:1px solid var(--line);border-radius:14px}
-      .panel,.wa-poll{padding:12px}.panel h3{font-size:.95rem;margin-bottom:10px}
-      .chart-list,.wa-list{display:flex;flex-direction:column;gap:8px}
-      .chart-row{display:grid;grid-template-columns:130px 1fr auto;gap:8px;align-items:center;font-size:.82rem}
-      .chart-track,.wa-track{height:10px;border-radius:99px;background:#edf4ef;overflow:hidden}
-      .wa-track{height:8px}.chart-fill,.wa-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green2))}
-      .wa-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.wa-title{font-weight:700}.wa-live{font-size:.75rem;color:var(--green);background:#ebf8ef;border:1px solid #bde4ca;border-radius:99px;padding:4px 10px}
-      .wa-item-top{display:flex;justify-content:space-between;font-size:.85rem}.wa-item-votes{color:var(--muted)}
-      .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{padding:10px}
-      .thumb{width:100%;aspect-ratio:4/3;border-radius:10px;object-fit:cover;border:1px solid #d3e4d8;background:linear-gradient(135deg,#dcefe2,#edf8f1)}
-      .name{margin-top:10px;font-family:"Syne",sans-serif;font-size:1.05rem}.dept{color:var(--muted);font-size:.85rem;margin-top:3px}.votes{margin-top:10px;color:var(--gold);font-weight:700}
-      .vote-btn{margin-top:10px;width:100%;border:1px solid #b6dbc3;background:#eefaf2;color:var(--green);border-radius:10px;padding:11px;font-weight:700;cursor:pointer}
-      .overlay{position:fixed;inset:0;background:rgba(11,39,23,.3);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}.overlay.open{display:flex}
-      .modal{width:100%;max-width:560px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.m-head{display:flex;justify-content:space-between;gap:10px;align-items:start}
-      .m-title{font-family:"Syne",sans-serif;font-size:1.15rem}.close{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer}
-      .bank-box{margin-top:10px;border:1px solid #bfe2ca;background:#f0fbf4;border-radius:12px;padding:12px}.bank-num{font-family:"Syne",sans-serif;font-size:1.5rem;color:var(--green);letter-spacing:1px}.bank-meta{margin-top:6px;font-size:.9rem;color:#2f6845}
-      .ref-box{margin-top:10px;border:1px dashed #cfded3;border-radius:10px;padding:10px;font-size:.9rem}.ref-code{font-family:"Syne",sans-serif;color:var(--green);font-size:1.05rem}
-      .steps{margin-top:10px;padding-left:18px;color:#284031;font-size:.9rem;line-height:1.55}.steps li{margin-bottom:8px}
-      .actions{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{border-radius:10px;padding:10px;border:1px solid var(--line);background:#fff;color:var(--text);cursor:pointer;font-weight:700}.btn.primary{background:#eef9f2;color:var(--green);border-color:#b9ddc6}
-      .status{margin-top:8px;color:var(--muted);font-size:.85rem}.toasts{position:fixed;top:10px;right:10px;z-index:30;display:flex;flex-direction:column;gap:8px}.toast{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.82rem}
-      @media (max-width:820px){.analytics{grid-template-columns:1fr}} @media (max-width:620px){.actions{grid-template-columns:1fr}}
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <section class="hero"><h1 class="title">MOUAEC <span>Live Vote Dashboard</span></h1><p class="sub">Transparent and manually confirmed voting. 1 vote = N100.</p></section>
-      <section class="analytics">
-        <div class="panel"><h3>Realtime Vote Growth (Bar Chart)</h3><div id="chartList" class="chart-list"></div></div>
-        <div class="wa-poll"><div class="wa-head"><div class="wa-title">WhatsApp Style Polling</div><div class="wa-live">Realtime</div></div><div class="wa-list" id="waPollList"></div></div>
-      </section>
-      <section class="grid" id="grid"></section>
-    </div>
-    <div class="overlay" id="overlay"><div class="modal"><div class="m-head"><div><div class="m-title" id="mTitle">Vote for Nominee</div><div class="status">Use the details below exactly as shown.</div></div><button class="close" id="closeBtn">x</button></div><div class="bank-box"><div class="bank-num">702319239</div><div class="bank-meta">moniepoint � Daniel Alphe</div></div><div class="ref-box">Reference Code: <span class="ref-code" id="refCode">-</span></div><ol class="steps"><li>Pay to the account above using the reference code as narration for easy sorting. Remember 1 vote = N100.</li><li>Once payment is made, share receipt to this number (07042319239) or click the WhatsApp link below to forward directly to WhatsApp.</li><li>The admin sees your receipt, confirms payment is received, and manually updates the vote dashboard.</li></ol><div class="actions"><button class="btn" id="copyBtn">Copy Account Number</button><button class="btn primary" id="waBtn">Open WhatsApp</button></div><div class="status" id="statusText">Waiting for your transfer and receipt submission.</div></div></div>
-    <div class="toasts" id="toasts"></div>
-    <script>
-      const SUPABASE_URL = "https://rhhpskzjoubsqjlqtmkt.supabase.co";
-      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJoaHBza3pqb3Vic3FqbHF0bWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTYzMzksImV4cCI6MjA5NTM5MjMzOX0.hGPfATpBEAaCjkP_gCNCfCosTuWu9W4NEbf6KmsCOVA";
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const PLACEHOLDER = "https://placehold.co/640x480/e8f5ec/1e5f38?text=MOUAEC+Nominee";
-      const WHATSAPP_NUMBER = "2347042319239";
-      let contestants = [];
-      const toast = (m)=>{const w=document.getElementById("toasts");while(w.children.length>=3)w.removeChild(w.firstChild);const e=document.createElement("div");e.className="toast";e.textContent=m;w.appendChild(e);setTimeout(()=>e.remove(),1800);};
-      const refCode = (n)=>{const i=(n||"VOTE").toUpperCase().replace(/[^A-Z0-9 ]/g," ").split(/\s+/).filter(Boolean).slice(0,3).map(s=>s[0]).join("")||"VOTE";const t=new Date().toISOString().replace(/[-:TZ.]/g,"").slice(0,12);return `${i}-${t}`};
-      function render(){const s=[...contestants].sort((a,b)=>(b.total_votes||0)-(a.total_votes||0));document.getElementById("grid").innerHTML=s.map(c=>`<article class="card"><img class="thumb" src="${c.image||c.image_url||PLACEHOLDER}" alt="${c.name}" onerror="this.src='${PLACEHOLDER}'" /><div class="name">${c.name||"Unnamed"}</div><div class="dept">${c.department||"No department"}</div><div class="votes">${Number(c.total_votes||0).toLocaleString()} votes</div><button class="vote-btn" onclick="startVote('${c.id}')">Vote</button></article>`).join("");renderPoll(s);renderChart(s)}
-      function renderPoll(list){const maxVotes=Math.max(1,...list.map(c=>Number(c.total_votes||0)));document.getElementById("waPollList").innerHTML=list.slice(0,6).map(c=>{const p=Math.max(0,(Number(c.total_votes||0)/maxVotes)*100);return `<div><div class="wa-item-top"><div>${c.name}</div><div class="wa-item-votes">${Number(c.total_votes||0).toLocaleString()} votes</div></div><div class="wa-track"><div class="wa-fill" style="width:${p}%"></div></div></div>`}).join("")}
-      function renderChart(list){const maxVotes=Math.max(1,...list.map(c=>Number(c.total_votes||0)));document.getElementById("chartList").innerHTML=list.slice(0,8).map(c=>{const p=(Number(c.total_votes||0)/maxVotes)*100;return `<div class="chart-row"><div>${c.name}</div><div class="chart-track"><div class="chart-fill" style="width:${p}%"></div></div><div>${p.toFixed(1)}%</div></div>`}).join("")}
-      async function loadContestants(){const {data,error}=await supabase.from("contestants").select("*").order("total_votes",{ascending:false});if(error){toast("Could not load contestants from Supabase");contestants=[];render();return;}contestants=data||[];render();}
-      function startVote(id){const c=contestants.find(x=>String(x.id)===String(id));if(!c)return;const ref=refCode(c.name);document.getElementById("mTitle").textContent=`Vote for ${c.name}`;document.getElementById("refCode").textContent=ref;document.getElementById("statusText").textContent="After payment, share receipt so admin can confirm and update votes.";document.getElementById("waBtn").onclick=()=>{const m=encodeURIComponent(`Hello Admin, I have paid to vote for ${c.name}. Reference: ${ref}. I am sending my receipt now.`);window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${m}`,"_blank")};document.getElementById("overlay").classList.add("open")}
-      document.getElementById("closeBtn").addEventListener("click",()=>document.getElementById("overlay").classList.remove("open"));
-      document.getElementById("overlay").addEventListener("click",(e)=>{if(e.target.id==="overlay")document.getElementById("overlay").classList.remove("open")});
-      document.getElementById("copyBtn").addEventListener("click",async()=>{try{await navigator.clipboard.writeText("702319239");toast("Account number copied")}catch{toast("Copy failed")}});
-      supabase.channel("realtime-dashboard").on("postgres_changes",{event:"*",schema:"public",table:"contestants"},loadContestants).subscribe();
-      loadContestants(); window.startVote=startVote;
-    </script>
-  </body>
-</html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOUAEC Live Vote Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --bg:          #f5f2eb;
+      --surface:     #ffffff;
+      --surface2:    #faf8f4;
+      --border:      #e4dfd4;
+      --border-hi:   #cdc8bb;
+      --text:        #0e0d0b;
+      --muted:       #7a7468;
+      --accent:      #16723f;
+      --accent-lo:   rgba(22,114,63,0.09);
+      --accent-mid:  rgba(22,114,63,0.18);
+      --gold:        #b8811f;
+      --gold-lo:     rgba(184,129,31,0.10);
+      --red:         #c0392b;
+      --bar1:        #16723f;
+      --bar2:        #1a9450;
+      --radius:      10px;
+      --radius-lg:   16px;
+      --shadow:      0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+      --shadow-lg:   0 8px 40px rgba(0,0,0,0.13);
+      --display:     'Syne', sans-serif;
+      --body:        'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ─── Topbar ─────────────────────────────────────────── */
+    .topbar {
+      background: var(--text);
+      color: #fff;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--display);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    .topbar-brand {
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .live-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--accent);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: #4eff8a;
+      border-radius: 50%;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.75); }
+    }
+
+    .topbar-right {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.04em;
+    }
+
+    /* ─── Hero Header ────────────────────────────────────── */
+    .hero {
+      background: var(--text);
+      color: #fff;
+      padding: 48px 24px 56px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 20% 50%, rgba(22,114,63,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 80% at 80% 30%, rgba(184,129,31,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--display);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #4eff8a;
+      margin-bottom: 16px;
+    }
+
+    .hero-title {
+      font-family: var(--display);
+      font-size: clamp(32px, 6vw, 58px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+    }
+
+    .hero-title span {
+      color: #4eff8a;
+    }
+
+    .hero-sub {
+      color: rgba(255,255,255,0.55);
+      font-size: 15px;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    /* ─── Stats Row ──────────────────────────────────────── */
+    .stats-strip {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      divide: var(--border);
+    }
+
+    .stat-cell {
+      padding: 20px 24px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-cell:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: var(--display);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+    }
+
+    /* ─── Section Wrapper ────────────────────────────────── */
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .section {
+      padding: 48px 0 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-family: var(--display);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .section-title span {
+      color: var(--accent);
+    }
+
+    /* ─── View Toggle ────────────────────────────────────── */
+    .view-toggle {
+      display: flex;
+      background: var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .toggle-btn {
+      font-family: var(--display);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .toggle-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    /* ─── Dashboard Panel ────────────────────────────────── */
+    .dashboard-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      min-height: 200px;
+    }
+
+    /* ─── POLL VIEW ──────────────────────────────────────── */
+    #poll-view { display: flex; flex-direction: column; gap: 0; }
+
+    .poll-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 8px;
+      padding: 14px 12px;
+      margin: 0 -12px;
+    }
+    .poll-item:last-child { border-bottom: none; }
+    .poll-item:hover { background: var(--surface2); }
+
+    .poll-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 9px;
+      gap: 12px;
+    }
+
+    .poll-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .poll-rank {
+      font-family: var(--display);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      width: 22px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .poll-rank.gold   { color: #d4a017; }
+    .poll-rank.silver { color: #8a9ab0; }
+    .poll-rank.bronze { color: #a0724a; }
+
+    .poll-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--accent-lo);
+      border: 2px solid var(--border);
+      object-fit: cover;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      overflow: hidden;
+    }
+    .poll-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+    .poll-name {
+      font-family: var(--display);
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .poll-dept {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .poll-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .poll-votes {
+      font-family: var(--display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .poll-pct {
+      font-family: var(--display);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .poll-bar-track {
+      height: 8px;
+      background: var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .poll-bar-fill {
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(90deg, var(--bar1), var(--bar2));
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 0%;
+    }
+
+    .poll-bar-fill.rank-1 { background: linear-gradient(90deg, #16723f, #21c060); }
+    .poll-bar-fill.rank-2 { background: linear-gradient(90deg, #1a5c8a, #2a8fd4); }
+    .poll-bar-fill.rank-3 { background: linear-gradient(90deg, #7a4a0a, #c97a20); }
+
+    /* ─── BAR CHART VIEW ─────────────────────────────────── */
+    #chart-view { display: none; }
+
+    .chart-wrap {
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .chart-inner {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      min-width: max-content;
+      height: 240px;
+      padding: 0 8px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .bar-votes-label {
+      font-family: var(--display);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+    }
+
+    .bar-col {
+      width: 52px;
+      border-radius: 6px 6px 0 0;
+      background: linear-gradient(180deg, #21c060, #16723f);
+      transition: height 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+      height: 0;
+      min-height: 4px;
+    }
+
+    .bar-col:hover { filter: brightness(1.1); }
+
+    .bar-label {
+      font-family: var(--display);
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--muted);
+      max-width: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 8px;
+    }
+
+    /* ─── Refresh bar ────────────────────────────────────── */
+    .refresh-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--body);
+    }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid var(--border-hi);
+      color: var(--muted);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-family: var(--body);
+      font-size: 12px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .refresh-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ─── Profile Cards Grid ─────────────────────────────── */
+    .cards-section { padding: 48px 0 72px; }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-img-wrap {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: var(--surface2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--display);
+      font-size: 52px;
+      font-weight: 800;
+      color: var(--accent);
+      background: linear-gradient(135deg, var(--accent-lo), var(--surface2));
+    }
+
+    .card-rank-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-family: var(--display);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.06em;
+    }
+
+    .card-rank-badge.rank-1 {
+      background: #fef08a;
+      color: #78350f;
+    }
+    .card-rank-badge.rank-2 {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .card-rank-badge.rank-3 {
+      background: #fed7aa;
+      color: #7c2d12;
+    }
+    .card-rank-badge.rank-other {
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+    }
+
+    .card-body {
+      padding: 18px 18px 14px;
+    }
+
+    .card-name {
+      font-family: var(--display);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 3px;
+      line-height: 1.2;
+    }
+
+    .card-dept {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .card-votes {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .card-votes-num {
+      font-family: var(--display);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .card-votes-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .card-ref {
+      font-family: 'DM Sans', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--accent-lo);
+      color: var(--accent);
+      padding: 3px 9px;
+      border-radius: 5px;
+      border: 1px solid var(--accent-mid);
+      letter-spacing: 0.04em;
+    }
+
+    .card-footer {
+      border-top: 1px solid var(--border);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-date {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .btn-vote {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-family: var(--display);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 18px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-vote:hover { opacity: 0.88; }
+    .btn-vote:active { transform: scale(0.97); }
+
+    /* ─── Vote Modal ─────────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(14,13,11,0.65);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s;
+      padding: 20px;
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .vote-modal {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(16px) scale(0.97);
+      transition: transform 0.25s cubic-bezier(0.16,1,0.3,1);
+      overflow: hidden;
+    }
+    .modal-backdrop.open .vote-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      background: var(--text);
+      color: #fff;
+      padding: 22px 24px 18px;
+    }
+
+    .modal-eyebrow {
+      font-size: 10px;
+      font-family: var(--display);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #4eff8a;
+      margin-bottom: 6px;
+    }
+
+    .modal-contestant-name {
+      font-family: var(--display);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-body { padding: 22px 24px; }
+
+    .modal-step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--display);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text { font-size: 13px; line-height: 1.6; color: var(--muted); }
+    .step-text strong { color: var(--text); }
+
+    .account-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .account-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+
+    .account-row + .account-row {
+      border-top: 1px solid var(--border);
+    }
+
+    .account-key {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--display);
+      font-weight: 600;
+    }
+
+    .account-val {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .ref-highlight {
+      font-family: var(--display);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--accent);
+      background: var(--accent-lo);
+      border: 1px solid var(--accent-mid);
+      padding: 2px 10px;
+      border-radius: 5px;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-copy {
+      background: var(--surface2);
+      border: 1px solid var(--border-hi);
+      color: var(--text);
+      padding: 12px;
+      border-radius: var(--radius);
+      font-family: var(--display);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-align: center;
+    }
+    .btn-copy:hover { background: var(--border); }
+
+    .btn-wa {
+      background: #25d366;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: var(--radius);
+      font-family: var(--display);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .btn-wa:hover { opacity: 0.88; }
+
+    .btn-close {
+      width: 100%;
+      margin-top: 10px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 10px;
+      border-radius: var(--radius);
+      font-family: var(--body);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-close:hover { border-color: var(--red); color: var(--red); }
+
+    /* ─── Loading skeleton ───────────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--border) 25%, var(--surface2) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .loading-placeholder {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 8px 0;
+    }
+
+    .skel-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .skel-circle { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; }
+    .skel-lines { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .skel-line { height: 12px; }
+    .skel-bar { height: 8px; margin-top: 8px; }
+
+    /* ─── Footer ─────────────────────────────────────────── */
+    footer {
+      background: var(--text);
+      color: rgba(255,255,255,0.4);
+      text-align: center;
+      padding: 28px 24px;
+      font-size: 12px;
+      font-family: var(--display);
+      letter-spacing: 0.06em;
+    }
+
+    footer strong { color: rgba(255,255,255,0.75); }
+
+    /* ─── Responsive ─────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .stats-strip { grid-template-columns: repeat(3,1fr); }
+      .stat-num { font-size: 20px; }
+      .hero { padding: 36px 20px 44px; }
+      .dashboard-panel { padding: 18px 14px; }
+      .modal-actions { grid-template-columns: 1fr; }
+      .topbar-right { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Topbar ──────────────────────────────────────────── -->
+  <div class="topbar">
+    <div class="topbar-brand">MOUAEC · Live Voting</div>
+    <div class="live-pill"><span class="live-dot"></span> Live</div>
+    <div class="topbar-right" id="last-updated">Loading…</div>
+  </div>
+
+  <!-- ── Hero ────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="hero-eyebrow">Ambassador Election · MOUAEC Week 2026</div>
+    <h1 class="hero-title">Vote.<span> Watch.</span><br>Champion Rises.</h1>
+    <p class="hero-sub">Transparent and manually confirmed voting. 1 vote = ₦100. Results update live.</p>
+  </div>
+
+  <!-- ── Stats Strip ──────────────────────────────────────── -->
+  <div class="stats-strip">
+    <div class="stat-cell">
+      <div class="stat-num" id="stat-total">—</div>
+      <div class="stat-label">Total Votes</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" id="stat-contestants">—</div>
+      <div class="stat-label">Contestants</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" id="stat-leader" style="font-size:16px;padding-top:4px">—</div>
+      <div class="stat-label">Leading</div>
+    </div>
+  </div>
+
+  <!-- ── Dashboard Section ────────────────────────────────── -->
+  <div class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="section-title">Live <span>Standings</span></h2>
+        <div class="view-toggle">
+          <button class="toggle-btn active" id="btn-poll" onclick="switchView('poll')">📊 Poll</button>
+          <button class="toggle-btn" id="btn-chart" onclick="switchView('chart')">📈 Chart</button>
+        </div>
+      </div>
+
+      <div class="dashboard-panel">
+
+        <!-- Poll View -->
+        <div id="poll-view">
+          <div class="loading-placeholder" id="poll-loading">
+            <div class="skel-row"><div class="skeleton skel-circle"></div><div class="skel-lines"><div class="skeleton skel-line" style="width:55%"></div><div class="skeleton skel-line" style="width:80%"></div><div class="skeleton skel-bar" style="width:100%"></div></div></div>
+            <div class="skel-row"><div class="skeleton skel-circle"></div><div class="skel-lines"><div class="skeleton skel-line" style="width:45%"></div><div class="skeleton skel-line" style="width:65%"></div><div class="skeleton skel-bar" style="width:100%"></div></div></div>
+            <div class="skel-row"><div class="skeleton skel-circle"></div><div class="skel-lines"><div class="skeleton skel-line" style="width:60%"></div><div class="skeleton skel-line" style="width:50%"></div><div class="skeleton skel-bar" style="width:100%"></div></div></div>
+          </div>
+        </div>
+
+        <!-- Chart View -->
+        <div id="chart-view">
+          <div class="chart-wrap">
+            <div class="chart-inner" id="chart-inner"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="refresh-bar">
+        <span id="refresh-hint">Auto-refreshes every 30s</span>
+        <button class="refresh-btn" onclick="fetchAndRender()">↻ Refresh Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Profile Cards ─────────────────────────────────────── -->
+  <div class="cards-section">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="section-title">The <span>Contestants</span></h2>
+      </div>
+      <div class="cards-grid" id="cards-grid">
+        <!-- loaded by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Footer ────────────────────────────────────────────── -->
+  <footer>
+    <strong>MOUAEC Week 2026</strong> · Michael Okpara University of Agriculture Entrepreneurship Club<br>
+    Transparent voting. Real-time results. Every naira counts.
+  </footer>
+
+  <!-- ── Vote Modal ─────────────────────────────────────────── -->
+  <div class="modal-backdrop" id="vote-modal">
+    <div class="vote-modal">
+      <div class="modal-header">
+        <div class="modal-eyebrow">Vote Now</div>
+        <div class="modal-contestant-name" id="m-contestant-name">—</div>
+      </div>
+      <div class="modal-body">
+        <div class="account-box">
+          <div class="account-row">
+            <span class="account-key">Bank</span>
+            <span class="account-val" id="m-bank">Moniepoint</span>
+          </div>
+          <div class="account-row">
+            <span class="account-key">Account No.</span>
+            <span class="account-val" id="m-acct">7042319239</span>
+          </div>
+          <div class="account-row">
+            <span class="account-key">Account Name</span>
+            <span class="account-val" id="m-name">MOUAEC VOTES</span>
+          </div>
+          <div class="account-row">
+            <span class="account-key">Narration / Reference</span>
+            <span class="ref-highlight" id="m-ref">VOTE-XXX</span>
+          </div>
+        </div>
+
+        <div class="modal-step">
+          <div class="step-num">1</div>
+          <div class="step-text">Transfer <strong>any amount</strong> to the account above. Use the <strong>reference code as your narration</strong>. ₦100 = 1 vote, ₦500 = 5 votes.</div>
+        </div>
+        <div class="modal-step">
+          <div class="step-num">2</div>
+          <div class="step-text">Send your <strong>payment receipt</strong> via WhatsApp to confirm. Click the button below to go straight to the chat.</div>
+        </div>
+        <div class="modal-step" style="margin-bottom:20px">
+          <div class="step-num">3</div>
+          <div class="step-text">Admin confirms receipt and <strong>updates the board</strong>. Votes appear within minutes.</div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-copy" onclick="copyAccountNumber()">📋 Copy Acct No.</button>
+          <a class="btn-wa" id="m-wa-link" href="#" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Send Receipt
+          </a>
+        </div>
+        <button class="btn-close" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Supabase SDK ───────────────────────────────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <script>
+    // ─── CONFIG — update these ───────────────────────────────
+    const SUPABASE_URL  = "https://zjkzdgdoenniruigwzfd.supabase.co";
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpqa3pkZ2RvZW5uaXJ1aWd3emZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjU4NzEsImV4cCI6MjA5NTQwMTg3MX0.7IakZ6r0AwhJpiZ02tEMNBnY521bWzLffVwIBjD9s2I";
+
+    // Payment account details
+    const BANK_NAME     = "Moniepoint";
+    const ACCOUNT_NO    = "7042319239";
+    const ACCOUNT_NAME  = "MOUAEC VOTES";
+    const WHATSAPP_NO   = "2347042319239"; // international format, no +
+
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // ─── State ───────────────────────────────────────────────
+    let contestants     = [];
+    let currentView     = "poll";
+    let refreshInterval = null;
+
+    // ─── Fetch & Render ──────────────────────────────────────
+    async function fetchAndRender() {
+      const { data, error } = await sb
+        .from("contestants")
+        .select("id, name, department, image_url, reference_code, total_votes, created_at")
+        .order("total_votes", { ascending: false });
+
+      if (error) {
+        console.error("Supabase error:", error.message);
+        return;
+      }
+
+      contestants = data || [];
+      updateStats();
+      renderPoll();
+      renderChart();
+      renderCards();
+      updateTimestamp();
+    }
+
+    // ─── Stats strip ─────────────────────────────────────────
+    function updateStats() {
+      const total = contestants.reduce((s, c) => s + (c.total_votes || 0), 0);
+      document.getElementById("stat-total").textContent        = total.toLocaleString();
+      document.getElementById("stat-contestants").textContent  = contestants.length;
+      const leader = contestants[0];
+      document.getElementById("stat-leader").textContent       = leader ? firstName(leader.name) : "—";
+    }
+
+    // ─── Poll View ───────────────────────────────────────────
+    function renderPoll() {
+      const container = document.getElementById("poll-view");
+      const totalVotes = contestants.reduce((s, c) => s + (c.total_votes || 0), 0);
+
+      if (!contestants.length) {
+        container.innerHTML = `<div style="padding:40px;text-align:center;color:var(--muted)">No contestants yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = contestants.map((c, i) => {
+        const pct = totalVotes ? ((c.total_votes / totalVotes) * 100).toFixed(1) : "0.0";
+        const rankClass = i === 0 ? "rank-1" : i === 1 ? "rank-2" : i === 2 ? "rank-3" : "";
+        const rankLabel = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i+1}`;
+        const goldClass = i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
+
+        return `
+          <div class="poll-item" onclick="openVoteModal('${c.id}')">
+            <div class="poll-item-top">
+              <div class="poll-left">
+                <span class="poll-rank ${goldClass}">${rankLabel}</span>
+                <div class="poll-avatar">
+                  ${c.image_url
+                    ? `<img src="${escHtml(c.image_url)}" alt="${escHtml(c.name)}" />`
+                    : escHtml(c.name.charAt(0).toUpperCase())}
+                </div>
+                <div>
+                  <div class="poll-name">${escHtml(c.name)}</div>
+                  <div class="poll-dept">${escHtml(c.department || "—")}</div>
+                </div>
+              </div>
+              <div class="poll-right">
+                <div class="poll-votes">${(c.total_votes || 0).toLocaleString()} votes</div>
+                <div class="poll-pct">${pct}%</div>
+              </div>
+            </div>
+            <div class="poll-bar-track">
+              <div class="poll-bar-fill ${rankClass}" data-pct="${pct}"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Animate bars after DOM paint
+      requestAnimationFrame(() => {
+        document.querySelectorAll(".poll-bar-fill").forEach(el => {
+          el.style.width = el.dataset.pct + "%";
+        });
+      });
+    }
+
+    // ─── Chart View ──────────────────────────────────────────
+    function renderChart() {
+      const inner = document.getElementById("chart-inner");
+      if (!contestants.length) { inner.innerHTML = ""; return; }
+
+      const maxVotes = Math.max(...contestants.map(c => c.total_votes || 0), 1);
+      const MAX_H = 200; // px
+
+      inner.innerHTML = contestants.map(c => {
+        const h = Math.max(4, ((c.total_votes || 0) / maxVotes) * MAX_H);
+        return `
+          <div class="bar-group" onclick="openVoteModal('${c.id}')">
+            <div class="bar-votes-label">${(c.total_votes || 0).toLocaleString()}</div>
+            <div class="bar-col" data-h="${h}" style="height:0"></div>
+            <div class="bar-label">${escHtml(firstName(c.name))}</div>
+          </div>
+        `;
+      }).join("");
+
+      // Animate bars
+      requestAnimationFrame(() => {
+        document.querySelectorAll(".bar-col").forEach(el => {
+          el.style.height = el.dataset.h + "px";
+        });
+      });
+    }
+
+    // ─── Cards Grid ──────────────────────────────────────────
+    function renderCards() {
+      const grid = document.getElementById("cards-grid");
+
+      if (!contestants.length) {
+        grid.innerHTML = `<div style="color:var(--muted)">No contestants found.</div>`;
+        return;
+      }
+
+      grid.innerHTML = contestants.map((c, i) => {
+        const rankLabel = i === 0 ? "🥇 1st" : i === 1 ? "🥈 2nd" : i === 2 ? "🥉 3rd" : `#${i+1}`;
+        const rankClass = i === 0 ? "rank-1" : i === 1 ? "rank-2" : i === 2 ? "rank-3" : "rank-other";
+        const dateStr   = c.created_at ? new Date(c.created_at).toLocaleDateString("en-NG", { day:"numeric", month:"short", year:"numeric" }) : "—";
+
+        return `
+          <div class="card" onclick="openVoteModal('${c.id}')">
+            <div class="card-img-wrap">
+              ${c.image_url
+                ? `<img class="card-img" src="${escHtml(c.image_url)}" alt="${escHtml(c.name)}" loading="lazy" />`
+                : `<div class="card-img-placeholder">${escHtml(c.name.charAt(0).toUpperCase())}</div>`}
+              <span class="card-rank-badge ${rankClass}">${rankLabel}</span>
+            </div>
+            <div class="card-body">
+              <div class="card-name">${escHtml(c.name)}</div>
+              <div class="card-dept">${escHtml(c.department || "—")}</div>
+              <div class="card-meta">
+                <div class="card-votes">
+                  <span class="card-votes-num">${(c.total_votes || 0).toLocaleString()}</span>
+                  <span class="card-votes-label">votes</span>
+                </div>
+                <span class="card-ref">${escHtml(c.reference_code || "—")}</span>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="card-date">Since ${dateStr}</span>
+              <button class="btn-vote" onclick="event.stopPropagation(); openVoteModal('${c.id}')">Vote →</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // ─── Vote Modal ───────────────────────────────────────────
+    function openVoteModal(contestantId) {
+      const c = contestants.find(x => x.id === contestantId);
+      if (!c) return;
+
+      document.getElementById("m-contestant-name").textContent = c.name;
+      document.getElementById("m-bank").textContent  = BANK_NAME;
+      document.getElementById("m-acct").textContent  = ACCOUNT_NO;
+      document.getElementById("m-name").textContent  = ACCOUNT_NAME;
+      document.getElementById("m-ref").textContent   = c.reference_code || "—";
+
+      const msg = `Hi, I just voted for ${c.name} (${c.reference_code}). Here is my receipt:`;
+      document.getElementById("m-wa-link").href =
+        `https://wa.me/${WHATSAPP_NO}?text=${encodeURIComponent(msg)}`;
+
+      document.getElementById("vote-modal").classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      document.getElementById("vote-modal").classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    function copyAccountNumber() {
+      navigator.clipboard.writeText(ACCOUNT_NO).then(() => {
+        const btn = document.querySelector(".btn-copy");
+        btn.textContent = "✓ Copied!";
+        setTimeout(() => btn.textContent = "📋 Copy Acct No.", 2000);
+      });
+    }
+
+    // ─── View switcher ────────────────────────────────────────
+    function switchView(view) {
+      currentView = view;
+      document.getElementById("poll-view").style.display  = view === "poll"  ? "flex" : "none";
+      document.getElementById("chart-view").style.display = view === "chart" ? "block" : "none";
+      document.getElementById("btn-poll").classList.toggle("active",  view === "poll");
+      document.getElementById("btn-chart").classList.toggle("active", view === "chart");
+
+      if (view === "chart") {
+        // re-trigger bar animations
+        requestAnimationFrame(() => {
+          document.querySelectorAll(".bar-col").forEach(el => {
+            el.style.height = "0";
+            requestAnimationFrame(() => el.style.height = el.dataset.h + "px");
+          });
+        });
+      }
+    }
+
+    // ─── Timestamp ───────────────────────────────────────────
+    function updateTimestamp() {
+      const now = new Date();
+      document.getElementById("last-updated").textContent =
+        "Updated " + now.toLocaleTimeString("en-NG", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+
+    // ─── Utils ───────────────────────────────────────────────
+    function firstName(name) {
+      return (name || "").split(" ")[0];
+    }
+
+    function escHtml(str) {
+      return String(str || "")
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    // Close modal on backdrop click
+    document.getElementById("vote-modal").addEventListener("click", e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+
+    // ─── Boot ─────────────────────────────────────────────────
+    fetchAndRender();
+    refreshInterval = setInterval(fetchAndRender, 30000);
+  </script>
+</body>
+</html>
