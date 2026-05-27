@@ -44,7 +44,7 @@ Copy `.env.example` to `.env` and fill:
 1. Install dependencies:
    `npm install`
 2. Run schema in Supabase SQL editor:
-   `backend/sql/schema.sql`
+   `backend/schema.sql`
 3. Start local server:
    `npm run dev`
 
@@ -128,4 +128,5 @@ After `/vote` response:
 1. Show account number/bank/account name to user.
 2. Poll `GET /vote-status/:session_id` every 3 seconds.
 3. Stop polling when `status === "paid"` or `status === "expired"`.
+
 

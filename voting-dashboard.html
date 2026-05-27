@@ -4,448 +4,68 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MOUAEC Voting Dashboard</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-      :root {
-        --bg: #07080d;
-        --surface: #121521;
-        --surface-2: #0f111a;
-        --line: rgba(255, 255, 255, 0.09);
-        --text: #eceef8;
-        --muted: #8b91a8;
-        --gold: #f1c35c;
-        --green: #25c46b;
-      }
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family: "DM Sans", sans-serif;
-        background:
-          radial-gradient(
-            circle at 20% -10%,
-            rgba(241, 195, 92, 0.16),
-            transparent 42%
-          ),
-          var(--bg);
-        color: var(--text);
-        min-height: 100vh;
-      }
-      .wrap {
-        max-width: 1080px;
-        margin: 0 auto;
-        padding: 1rem 1rem 5rem;
-      }
-      .hero {
-        border: 1px solid var(--line);
-        background: linear-gradient(
-          145deg,
-          rgba(255, 255, 255, 0.02),
-          rgba(255, 255, 255, 0.01)
-        );
-        border-radius: 16px;
-        padding: 1.1rem;
-        margin-bottom: 1rem;
-      }
-      .title {
-        font-family: "Syne", sans-serif;
-        font-size: clamp(1.5rem, 4vw, 2.5rem);
-      }
-      .title span {
-        color: var(--gold);
-      }
-      .sub {
-        color: var(--muted);
-        margin-top: 0.35rem;
-        font-size: 0.92rem;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-        gap: 0.8rem;
-      }
-      .card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 0.9rem;
-      }
-      .name {
-        font-family: "Syne", sans-serif;
-        font-size: 1.05rem;
-        font-weight: 700;
-      }
-      .dept {
-        color: var(--muted);
-        font-size: 0.86rem;
-        margin-top: 0.2rem;
-      }
-      .votes {
-        margin-top: 0.7rem;
-        font-weight: 700;
-        color: var(--gold);
-      }
-      .vote-btn {
-        margin-top: 0.75rem;
-        width: 100%;
-        border: 1px solid rgba(241, 195, 92, 0.45);
-        background: rgba(241, 195, 92, 0.13);
-        color: var(--gold);
-        border-radius: 10px;
-        padding: 0.67rem;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .vote-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(3, 4, 8, 0.82);
-        backdrop-filter: blur(6px);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem;
-        z-index: 20;
-      }
-      .overlay.open {
-        display: flex;
-      }
-      .modal {
-        width: 100%;
-        max-width: 500px;
-        background: var(--surface-2);
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 1rem;
-      }
-      .m-head {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        align-items: start;
-      }
-      .m-title {
-        font-family: "Syne", sans-serif;
-        font-size: 1.15rem;
-      }
-      .close {
-        background: transparent;
-        color: var(--muted);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        width: 32px;
-        height: 32px;
-        cursor: pointer;
-      }
-      .bank-box {
-        margin-top: 0.9rem;
-        border: 1px solid rgba(37, 196, 107, 0.36);
-        background: rgba(37, 196, 107, 0.08);
-        border-radius: 12px;
-        padding: 0.8rem;
-      }
-      .bank-num {
-        font-family: "Syne", sans-serif;
-        font-size: 1.55rem;
-        letter-spacing: 1px;
-        color: #8effbc;
-      }
-      .bank-meta {
-        margin-top: 0.35rem;
-        font-size: 0.9rem;
-        color: #bdeccd;
-      }
-      .small {
-        margin-top: 0.75rem;
-        color: var(--muted);
-        font-size: 0.86rem;
-        line-height: 1.5;
-      }
-      .disclaimer {
-        margin-top: 0.8rem;
-        border: 1px solid rgba(241, 195, 92, 0.3);
-        border-radius: 12px;
-        background: rgba(241, 195, 92, 0.08);
-        padding: 0.75rem;
-        font-size: 0.8rem;
-        color: #ffe3a8;
-        line-height: 1.5;
-      }
-      .actions {
-        margin-top: 0.9rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.6rem;
-      }
-      .btn {
-        border-radius: 10px;
-        padding: 0.7rem;
-        border: 1px solid var(--line);
-        background: transparent;
-        color: var(--text);
-        cursor: pointer;
-        font-weight: 600;
-      }
-      .btn.primary {
-        background: rgba(241, 195, 92, 0.16);
-        color: var(--gold);
-        border-color: rgba(241, 195, 92, 0.42);
-      }
-      .status {
-        margin-top: 0.7rem;
-        font-size: 0.86rem;
-        color: var(--muted);
-      }
-
-      .toasts {
-        position: fixed;
-        top: 0.7rem;
-        right: 0.7rem;
-        z-index: 30;
-        display: flex;
-        flex-direction: column;
-        gap: 0.45rem;
-        max-width: 80vw;
-      }
-      .toast {
-        background: #111420;
-        border: 1px solid var(--line);
-        color: var(--text);
-        border-radius: 9px;
-        padding: 0.55rem 0.72rem;
-        font-size: 0.8rem;
-      }
-
-      @media (max-width: 620px) {
-        .actions {
-          grid-template-columns: 1fr;
-        }
-        .bank-num {
-          font-size: 1.25rem;
-        }
-      }
+      :root { --bg:#f7faf7; --card:#fff; --line:#d9e7dd; --text:#132318; --muted:#607066; --green:#0b6b2f; --green2:#1a8a49; --gold:#c28b1a; }
+      *{box-sizing:border-box;margin:0;padding:0} body{font-family:"DM Sans",sans-serif;background:radial-gradient(circle at top right,#e9f8ef 0%,var(--bg) 45%);color:var(--text)}
+      .wrap{max-width:1120px;margin:0 auto;padding:20px 14px 60px} .hero{border:1px solid var(--line);background:linear-gradient(135deg,#fff,#f2fbf5);border-radius:16px;padding:18px;margin-bottom:14px}
+      .title{font-family:"Syne",sans-serif;font-size:clamp(1.5rem,4vw,2.3rem)} .title span{color:var(--green)} .sub{color:var(--muted);margin-top:6px;font-size:.94rem}
+      .analytics{display:grid;grid-template-columns:1.15fr 1fr;gap:12px;margin-bottom:12px}
+      .panel,.wa-poll,.card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+      .panel,.wa-poll{padding:12px}.panel h3{font-size:.95rem;margin-bottom:10px}
+      .chart-list,.wa-list{display:flex;flex-direction:column;gap:8px}
+      .chart-row{display:grid;grid-template-columns:130px 1fr auto;gap:8px;align-items:center;font-size:.82rem}
+      .chart-track,.wa-track{height:10px;border-radius:99px;background:#edf4ef;overflow:hidden}
+      .wa-track{height:8px}.chart-fill,.wa-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green2))}
+      .wa-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.wa-title{font-weight:700}.wa-live{font-size:.75rem;color:var(--green);background:#ebf8ef;border:1px solid #bde4ca;border-radius:99px;padding:4px 10px}
+      .wa-item-top{display:flex;justify-content:space-between;font-size:.85rem}.wa-item-votes{color:var(--muted)}
+      .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{padding:10px}
+      .thumb{width:100%;aspect-ratio:4/3;border-radius:10px;object-fit:cover;border:1px solid #d3e4d8;background:linear-gradient(135deg,#dcefe2,#edf8f1)}
+      .name{margin-top:10px;font-family:"Syne",sans-serif;font-size:1.05rem}.dept{color:var(--muted);font-size:.85rem;margin-top:3px}.votes{margin-top:10px;color:var(--gold);font-weight:700}
+      .vote-btn{margin-top:10px;width:100%;border:1px solid #b6dbc3;background:#eefaf2;color:var(--green);border-radius:10px;padding:11px;font-weight:700;cursor:pointer}
+      .overlay{position:fixed;inset:0;background:rgba(11,39,23,.3);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}.overlay.open{display:flex}
+      .modal{width:100%;max-width:560px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.m-head{display:flex;justify-content:space-between;gap:10px;align-items:start}
+      .m-title{font-family:"Syne",sans-serif;font-size:1.15rem}.close{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:#fff;cursor:pointer}
+      .bank-box{margin-top:10px;border:1px solid #bfe2ca;background:#f0fbf4;border-radius:12px;padding:12px}.bank-num{font-family:"Syne",sans-serif;font-size:1.5rem;color:var(--green);letter-spacing:1px}.bank-meta{margin-top:6px;font-size:.9rem;color:#2f6845}
+      .ref-box{margin-top:10px;border:1px dashed #cfded3;border-radius:10px;padding:10px;font-size:.9rem}.ref-code{font-family:"Syne",sans-serif;color:var(--green);font-size:1.05rem}
+      .steps{margin-top:10px;padding-left:18px;color:#284031;font-size:.9rem;line-height:1.55}.steps li{margin-bottom:8px}
+      .actions{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn{border-radius:10px;padding:10px;border:1px solid var(--line);background:#fff;color:var(--text);cursor:pointer;font-weight:700}.btn.primary{background:#eef9f2;color:var(--green);border-color:#b9ddc6}
+      .status{margin-top:8px;color:var(--muted);font-size:.85rem}.toasts{position:fixed;top:10px;right:10px;z-index:30;display:flex;flex-direction:column;gap:8px}.toast{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.82rem}
+      @media (max-width:820px){.analytics{grid-template-columns:1fr}} @media (max-width:620px){.actions{grid-template-columns:1fr}}
     </style>
   </head>
   <body>
     <div class="wrap">
-      <section class="hero">
-        <h1 class="title">MOUAEC <span>Live Vote</span> Dashboard</h1>
-        <p class="sub">
-          No login. No personal info. Transfer any amount. Votes are credited
-          automatically.
-        </p>
+      <section class="hero"><h1 class="title">MOUAEC <span>Live Vote Dashboard</span></h1><p class="sub">Transparent and manually confirmed voting. 1 vote = N100.</p></section>
+      <section class="analytics">
+        <div class="panel"><h3>Realtime Vote Growth (Bar Chart)</h3><div id="chartList" class="chart-list"></div></div>
+        <div class="wa-poll"><div class="wa-head"><div class="wa-title">WhatsApp Style Polling</div><div class="wa-live">Realtime</div></div><div class="wa-list" id="waPollList"></div></div>
       </section>
       <section class="grid" id="grid"></section>
     </div>
-
-    <div class="overlay" id="overlay">
-      <div class="modal">
-        <div class="m-head">
-          <div>
-            <div class="m-title" id="mTitle">Vote for Nominee</div>
-            <div class="small">This account expires in 30 minutes.</div>
-          </div>
-          <button class="close" id="closeBtn">x</button>
-        </div>
-
-        <div class="bank-box">
-          <div class="bank-num" id="acctNum">-</div>
-          <div class="bank-meta" id="bankMeta">-</div>
-        </div>
-
-        <div class="disclaimer">
-          Important: transfer only to the exact account shown here. Payments to
-          a wrong account cannot be credited. If you transfer after expiry, your
-          bank may reverse automatically based on bank policy, but reversal
-          timing is outside this platform.
-        </div>
-
-        <div class="actions">
-          <button class="btn" id="copyBtn">Copy Account Number</button>
-          <button class="btn primary" id="verifyBtn">Verify Payment</button>
-        </div>
-        <div class="status" id="statusText">
-          Waiting for transfer confirmation...
-        </div>
-      </div>
-    </div>
-
+    <div class="overlay" id="overlay"><div class="modal"><div class="m-head"><div><div class="m-title" id="mTitle">Vote for Nominee</div><div class="status">Use the details below exactly as shown.</div></div><button class="close" id="closeBtn">x</button></div><div class="bank-box"><div class="bank-num">702319239</div><div class="bank-meta">moniepoint · Daniel Alphe</div></div><div class="ref-box">Reference Code: <span class="ref-code" id="refCode">-</span></div><ol class="steps"><li>Pay to the account above using the reference code as narration for easy sorting. Remember 1 vote = N100.</li><li>Once payment is made, share receipt to this number (07042319239) or click the WhatsApp link below to forward directly to WhatsApp.</li><li>The admin sees your receipt, confirms payment is received, and manually updates the vote dashboard.</li></ol><div class="actions"><button class="btn" id="copyBtn">Copy Account Number</button><button class="btn primary" id="waBtn">Open WhatsApp</button></div><div class="status" id="statusText">Waiting for your transfer and receipt submission.</div></div></div>
     <div class="toasts" id="toasts"></div>
-
     <script>
-      const API_BASE = window.VOTE_API_BASE_URL || "http://localhost:3000";
-      const contestants = [
-        {
-          id: 1,
-          name: "Ada Okonkwo",
-          department: "Computer Science",
-          total_votes: 0,
-        },
-        {
-          id: 2,
-          name: "Emeka Dike",
-          department: "Engineering",
-          total_votes: 0,
-        },
-        {
-          id: 3,
-          name: "Chisom Eze",
-          department: "Business Admin",
-          total_votes: 0,
-        },
-        { id: 4, name: "Fatima Usman", department: "Medicine", total_votes: 0 },
-      ];
-
-      let activeSession = null;
-      let pollTimer = null;
-
-      function toast(message) {
-        const wrap = document.getElementById("toasts");
-        while (wrap.children.length >= 3) wrap.removeChild(wrap.firstChild);
-        const el = document.createElement("div");
-        el.className = "toast";
-        el.textContent = message;
-        wrap.appendChild(el);
-        setTimeout(() => el.remove(), 1300);
-      }
-
-      function render() {
-        const grid = document.getElementById("grid");
-        const sorted = [...contestants].sort(
-          (a, b) => b.total_votes - a.total_votes,
-        );
-        grid.innerHTML = sorted
-          .map(
-            (c) => `
-          <article class="card">
-            <div class="name">${c.name}</div>
-            <div class="dept">${c.department}</div>
-            <div class="votes">${c.total_votes.toLocaleString()} votes</div>
-            <button class="vote-btn" onclick="startVote(${c.id})">Vote</button>
-          </article>
-        `,
-          )
-          .join("");
-      }
-
-      function openModal() {
-        document.getElementById("overlay").classList.add("open");
-      }
-      function closeModal() {
-        document.getElementById("overlay").classList.remove("open");
-        if (pollTimer) clearInterval(pollTimer);
-      }
-
-      async function startVote(contestantId) {
-        const c = contestants.find((x) => x.id === contestantId);
-        document.getElementById("mTitle").textContent = `Vote for ${c.name}`;
-        document.getElementById("statusText").textContent =
-          "Generating virtual account...";
-        openModal();
-        try {
-          const res = await fetch(`${API_BASE}/vote`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contestant_id: contestantId }),
-          });
-          const data = await res.json();
-          if (!res.ok)
-            throw new Error(data.error || "Unable to create session");
-
-          activeSession = {
-            session_id: data.session_id,
-            contestant_id: contestantId,
-            account_number: data.account_number,
-          };
-          document.getElementById("acctNum").textContent = data.account_number;
-          document.getElementById("bankMeta").textContent =
-            `${data.bank_name} â€¢ ${data.account_name}`;
-          document.getElementById("statusText").textContent =
-            "Transfer made? Tap Verify Payment.";
-          startPolling();
-        } catch (e) {
-          document.getElementById("statusText").textContent =
-            "Could not create payment session.";
-          toast("Session creation failed");
-        }
-      }
-
-      async function verifyPayment() {
-        if (!activeSession) return;
-        document.getElementById("statusText").textContent =
-          "Checking payment status...";
-        await checkVoteStatus(true);
-      }
-
-      async function checkVoteStatus(isManual = false) {
-        if (!activeSession) return;
-        try {
-          const res = await fetch(
-            `${API_BASE}/vote-status/${activeSession.session_id}`,
-          );
-          const data = await res.json();
-          if (!res.ok) throw new Error("Unable to verify");
-
-          if (data.status === "paid") {
-            const c = contestants.find((x) => x.id === data.contestant_id);
-            if (c) c.total_votes += Number(data.votes_credited || 0);
-            render();
-            document.getElementById("statusText").textContent =
-              "Payment confirmed. Redirecting to dashboard...";
-            toast(`+${data.votes_credited} votes added`);
-            setTimeout(() => {
-              closeModal();
-              window.location.hash = "dashboard";
-            }, 900);
-            return;
-          }
-
-          if (data.status === "expired") {
-            document.getElementById("statusText").textContent =
-              "Session expired. Please create a new vote session.";
-            toast("Session expired");
-            if (pollTimer) clearInterval(pollTimer);
-            return;
-          }
-
-          if (isManual) toast("Payment not confirmed yet");
-          document.getElementById("statusText").textContent =
-            "Still pending. Complete transfer, then verify again.";
-        } catch (_) {
-          if (isManual) toast("Verification failed");
-        }
-      }
-
-      function startPolling() {
-        if (pollTimer) clearInterval(pollTimer);
-        pollTimer = setInterval(() => checkVoteStatus(false), 3000);
-      }
-
-      document
-        .getElementById("verifyBtn")
-        .addEventListener("click", verifyPayment);
-      document.getElementById("closeBtn").addEventListener("click", closeModal);
-      document.getElementById("overlay").addEventListener("click", (e) => {
-        if (e.target.id === "overlay") closeModal();
-      });
-      document.getElementById("copyBtn").addEventListener("click", async () => {
-        const txt = activeSession?.account_number;
-        if (!txt) return;
-        await navigator.clipboard.writeText(txt);
-        toast("Account number copied");
-      });
-
-      render();
+      const SUPABASE_URL = "https://rhhpskzjoubsqjlqtmkt.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJoaHBza3pqb3Vic3FqbHF0bWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTYzMzksImV4cCI6MjA5NTM5MjMzOX0.hGPfATpBEAaCjkP_gCNCfCosTuWu9W4NEbf6KmsCOVA";
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const PLACEHOLDER = "https://placehold.co/640x480/e8f5ec/1e5f38?text=MOUAEC+Nominee";
+      const WHATSAPP_NUMBER = "2347042319239";
+      let contestants = [];
+      const toast = (m)=>{const w=document.getElementById("toasts");while(w.children.length>=3)w.removeChild(w.firstChild);const e=document.createElement("div");e.className="toast";e.textContent=m;w.appendChild(e);setTimeout(()=>e.remove(),1800);};
+      const refCode = (n)=>{const i=(n||"VOTE").toUpperCase().replace(/[^A-Z0-9 ]/g," ").split(/\s+/).filter(Boolean).slice(0,3).map(s=>s[0]).join("")||"VOTE";const t=new Date().toISOString().replace(/[-:TZ.]/g,"").slice(0,12);return `${i}-${t}`};
+      function render(){const s=[...contestants].sort((a,b)=>(b.total_votes||0)-(a.total_votes||0));document.getElementById("grid").innerHTML=s.map(c=>`<article class="card"><img class="thumb" src="${c.image||c.image_url||PLACEHOLDER}" alt="${c.name}" onerror="this.src='${PLACEHOLDER}'" /><div class="name">${c.name||"Unnamed"}</div><div class="dept">${c.department||"No department"}</div><div class="votes">${Number(c.total_votes||0).toLocaleString()} votes</div><button class="vote-btn" onclick="startVote('${c.id}')">Vote</button></article>`).join("");renderPoll(s);renderChart(s)}
+      function renderPoll(list){const maxVotes=Math.max(1,...list.map(c=>Number(c.total_votes||0)));document.getElementById("waPollList").innerHTML=list.slice(0,6).map(c=>{const p=Math.max(0,(Number(c.total_votes||0)/maxVotes)*100);return `<div><div class="wa-item-top"><div>${c.name}</div><div class="wa-item-votes">${Number(c.total_votes||0).toLocaleString()} votes</div></div><div class="wa-track"><div class="wa-fill" style="width:${p}%"></div></div></div>`}).join("")}
+      function renderChart(list){const maxVotes=Math.max(1,...list.map(c=>Number(c.total_votes||0)));document.getElementById("chartList").innerHTML=list.slice(0,8).map(c=>{const p=(Number(c.total_votes||0)/maxVotes)*100;return `<div class="chart-row"><div>${c.name}</div><div class="chart-track"><div class="chart-fill" style="width:${p}%"></div></div><div>${p.toFixed(1)}%</div></div>`}).join("")}
+      async function loadContestants(){const {data,error}=await supabase.from("contestants").select("*").order("total_votes",{ascending:false});if(error){toast("Could not load contestants from Supabase");contestants=[];render();return;}contestants=data||[];render();}
+      function startVote(id){const c=contestants.find(x=>String(x.id)===String(id));if(!c)return;const ref=refCode(c.name);document.getElementById("mTitle").textContent=`Vote for ${c.name}`;document.getElementById("refCode").textContent=ref;document.getElementById("statusText").textContent="After payment, share receipt so admin can confirm and update votes.";document.getElementById("waBtn").onclick=()=>{const m=encodeURIComponent(`Hello Admin, I have paid to vote for ${c.name}. Reference: ${ref}. I am sending my receipt now.`);window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${m}`,"_blank")};document.getElementById("overlay").classList.add("open")}
+      document.getElementById("closeBtn").addEventListener("click",()=>document.getElementById("overlay").classList.remove("open"));
+      document.getElementById("overlay").addEventListener("click",(e)=>{if(e.target.id==="overlay")document.getElementById("overlay").classList.remove("open")});
+      document.getElementById("copyBtn").addEventListener("click",async()=>{try{await navigator.clipboard.writeText("702319239");toast("Account number copied")}catch{toast("Copy failed")}});
+      supabase.channel("realtime-dashboard").on("postgres_changes",{event:"*",schema:"public",table:"contestants"},loadContestants).subscribe();
+      loadContestants(); window.startVote=startVote;
     </script>
   </body>
 </html>
+

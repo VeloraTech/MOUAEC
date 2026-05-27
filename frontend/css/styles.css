@@ -1,14 +1,14 @@
 @font-face {
   font-family: "Playfair";
-  src: url(PlayfairDisplay-VariableFont_wght.ttf);
+  src: url(../fonts/PlayfairDisplay-VariableFont_wght.ttf);
 }
 @font-face {
   font-family: "Montserrat";
-  src: url(Montserrat-VariableFont_wght.ttf);
+  src: url(../fonts/Montserrat-VariableFont_wght.ttf);
 }
 @font-face {
   font-family: "Pinyon";
-  src: url(PinyonScript-Regular.ttf);
+  src: url(../fonts/PinyonScript-Regular.ttf);
 }
 :root {
   --bg-color: #fdfaf3;
@@ -623,6 +623,9 @@
   }
   #mouau-hero .nav-ctas {
     gap: 0.5rem;
+  }
+  .flyer {
+    display: none;
   }
 }
 
@@ -1711,3 +1714,4 @@ footer::after {
     font-size: 0.65rem;
   }
 }
+

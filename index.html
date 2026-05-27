@@ -28,11 +28,11 @@
       property="og:description"
       content="Vote for the Ambassador of MOUAEC 2025. Cast your vote in real-time and watch the live leaderboard. Only on MOUAU's official voting platform."
     />
-    <meta property="og:url" content="https://mouau.edu.ng/voting" />
+    <meta property="og:url" content="https://mouaec.vercel.app" />
     <meta property="og:site_name" content="MOUAU Entrepreneurship Club" />
     <meta
       property="og:image"
-      content="https://mouau.edu.ng/images/mouau-og-image.jpg"
+      content="https://mouaec.vercel.app/IMG-20260521-WA0039.jpg"
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -44,26 +44,26 @@
     />
     <meta
       name="twitter:image"
-      content="https://mouau.edu.ng/images/mouau-twitter-image.jpg"
+      content="https://mouaec.vercel.app/IMG-20260521-WA0039.jpg"
     />
     <meta name="twitter:creator" content="@MOUAU_Official" />
     <title>
       MOUAEC Week 2025 - Live Voting Platform | Ambassador Election | MOUAU
     </title>
-    <link rel="canonical" href="https://mouau.edu.ng/voting" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="canonical" href="https://mouaec.vercel.app" />
+    <link rel="stylesheet" href="frontend/css/styles.css" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Event",
         "name": "MOUAEC Week 2025 - Ambassador Voting",
         "description": "Michael Okpara University of Agriculture Entrepreneurship Club annual week celebration with live voting for Ambassador of MOUAEC",
-        "url": "https://mouau.edu.ng/voting",
+        "url": "https://mouaec.vercel.app",
         "organizer": {
           "@type": "Organization",
           "name": "MOUAU Entrepreneurship Club",
-          "url": "https://mouau.edu.ng",
-          "logo": "https://mouau.edu.ng/images/mouau-logo.webp"
+          "url": "https://mouaec.vercel.app",
+          "logo": "https://mouaec.vercel.app/IMG-20260526-WA0007-removebg-preview.png"
         },
         "startDate": "2025-05-26",
         "endDate": "2025-05-30",
@@ -71,7 +71,7 @@
         "eventAttendanceMode": "OnlineEventAttendanceMode",
         "location": {
           "@type": "VirtualLocation",
-          "url": "https://mouau.edu.ng/voting"
+          "url": "https://mouaec.vercel.app"
         }
       }
     </script>
@@ -87,7 +87,7 @@
         <div style="display: flex; flex-direction: row; gap: 5px">
           <a href="https://mouau.edu.ng" target="_blank" class="nav-logo">
             <!-- Replace the div below with your actual logo: <img src="mouau-logo.png" width="52" height="52"/> -->
-            <img src="MOUOU_LOGO.webp" alt="MOUAU LOGO" class="logo" />
+            <img src="frontend/images/MOUOU_LOGO.webp" alt="MOUAU LOGO" class="logo" />
           </a>
           <a
             href="#"
@@ -98,7 +98,7 @@
               text-decoration: none;
             "
           >
-            <img src="IMG-20260526-WA0007-removebg-preview.png" class="logo" />
+            <img src="frontend/images/IMG-20260526-WA0007-removebg-preview.png" class="logo" />
             <div class="nav-wordmark" style="transform: translateY(15px)">
               <strong
                 style="
@@ -121,7 +121,7 @@
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
             Vote Now
           </a>
-          <a href="#" class="btn-sponsor">Sponsor This</a>
+          <a href="https://wa.me/2347042319239" class="btn-sponsor" target="_blank" rel="noopener">Sponsor This</a>
         </div>
       </nav>
 
@@ -165,7 +165,7 @@
             <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
             Vote Now
           </a>
-          <a href="#" class="hero-btn-sponsor">Sponsor This</a>
+          <a href="https://wa.me/2347042319239" class="hero-btn-sponsor" target="_blank" rel="noopener">Sponsor This</a>
         </div>
 
         <!-- countdown -->
@@ -811,6 +811,22 @@
         </div>
       </div>
 
+      <div
+        style="
+          float: right;
+          position: absolute;
+          top: 50%;
+          right: 0;
+          transform: translateY(-77%) translateX(-50px);
+        "
+      >
+        <img
+          src="frontend/images/IMG-20260521-WA0039.jpg"
+          alt=""
+          class="flyer"
+          style="width: 50vw; height: 100vh; border-radius: 40px"
+        />
+      </div>
       <div class="hype-stats">
         <div class="hype-stat">
           <span class="stat-num">10K+</span>
@@ -857,7 +873,7 @@
           </p>
         </div>
         <div class="hype-strip-cta">
-          <a href="#" class="hype-btn">
+          <a href="voting-dashboard.html" class="hype-btn">
             Cast Your Vote
             <svg viewBox="0 0 24 24">
               <line x1="5" y1="12" x2="19" y2="12" />
@@ -876,7 +892,7 @@
           <!-- Column 1: About -->
           <div class="footer-col">
             <div class="footer-logo">
-              <img src="MOUOU_LOGO.webp" alt="MOUAU Logo" />
+              <img src="frontend/images/MOUOU_LOGO.webp" alt="MOUAU Logo" />
               <div class="footer-logo-text">
                 <strong>MOUAU</strong>
                 <span>Est. 1921</span>
@@ -919,11 +935,11 @@
           <!-- Column 2: Quick Links -->
           <div class="footer-col">
             <h3>Quick Links</h3>
-            <a href="#">Home</a>
+            <a href="index.html">Home</a>
             <a href="voting-dashboard.html">Live Voting</a>
             <a href="voting-simple-sections.html">How It Works</a>
-            <a href="#">Contact Us</a>
-            <a href="#">Privacy Policy</a>
+            <a href="mailto:info@mouau.edu.ng">Contact Us</a>
+            <a href="voting-simple-sections.html">Privacy Policy</a>
           </div>
 
           <!-- Column 3: Events -->
@@ -964,17 +980,20 @@
             Copyright 2025 MOUAU Entrepreneurship Club. All rights reserved.
           </div>
           <div class="footer-bottom-links">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Accessibility</a>
-            <a href="#">Sitemap</a>
+            <a href="voting-simple-sections.html">Privacy</a>
+            <a href="voting-simple-sections.html">Terms</a>
+            <a href="voting-simple-sections.html">Accessibility</a>
+            <a href="index.html">Sitemap</a>
           </div>
         </div>
       </div>
     </footer>
 
-    <script src="script.js"></script>
-    <script src="ScrollTrigger.min.js"></script>
-    <script src="gsap.min.js"></script>
+    <script src="frontend/js/script.js"></script>
+    <script src="frontend/js/ScrollTrigger.min.js"></script>
+    <script src="frontend/js/gsap.min.js"></script>
   </body>
 </html>
+
+
+
