@@ -5,113 +5,658 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vote Admin Panel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      :root {
-        --bg: #0a0a0b; --surface: #111114; --border: #1f1f24;
-        --border-hi: #2e2e38; --text: #e8e8f0; --muted: #5a5a72;
-        --accent: #6c63ff; --accent-lo: rgba(108,99,255,0.12);
-        --green: #22c55e; --red: #ef4444; --amber: #f59e0b;
-        --radius: 8px; --mono: "IBM Plex Mono",monospace; --sans: "IBM Plex Sans",sans-serif;
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-      html,body { height:100%; background:var(--bg); color:var(--text); font-family:var(--sans); font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased; }
-      #login-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
-      .login-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:48px 44px; width:100%; max-width:400px; text-align:center; }
-      .login-badge { display:inline-block; font-family:var(--mono); font-size:10px; letter-spacing:.15em; color:var(--accent); background:var(--accent-lo); border:1px solid rgba(108,99,255,.25); padding:4px 10px; border-radius:4px; margin-bottom:24px; text-transform:uppercase; }
-      .login-card h1 { font-size:22px; font-weight:600; letter-spacing:-.3px; margin-bottom:6px; }
-      .login-card p { color:var(--muted); font-size:13px; margin-bottom:36px; }
-      .btn-google { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:12px 20px; background:#fff; color:#1a1a1a; font-family:var(--sans); font-size:14px; font-weight:500; border:none; border-radius:var(--radius); cursor:pointer; transition:opacity .15s,transform .1s; }
-      .btn-google:hover { opacity:.92; } .btn-google:active { transform:scale(.98); }
-      .google-icon { width:18px; height:18px; flex-shrink:0; }
-      .login-footer { margin-top:20px; font-size:11px; color:var(--muted); font-family:var(--mono); }
-      #admin-screen { display:none; min-height:100vh; }
-      .topbar { position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:56px; background:rgba(10,10,11,.85); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); }
-      .topbar-left { display:flex; align-items:center; gap:12px; }
-      .topbar-logo { font-family:var(--mono); font-size:13px; font-weight:600; color:var(--accent); letter-spacing:.05em; }
-      .topbar-sep { color:var(--border-hi); font-size:18px; }
-      .topbar-title { font-size:13px; color:var(--muted); font-family:var(--mono); }
-      .topbar-right { display:flex; align-items:center; gap:16px; }
-      .user-pill { display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:4px 12px 4px 6px; font-size:12px; color:var(--muted); }
-      .user-avatar { width:24px; height:24px; border-radius:50%; background:var(--accent-lo); border:1px solid var(--accent); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--accent); font-weight:600; overflow:hidden; }
-      .user-avatar img { width:100%; height:100%; object-fit:cover; }
-      .btn-logout { background:none; border:1px solid var(--border); color:var(--muted); padding:5px 12px; border-radius:var(--radius); font-family:var(--mono); font-size:11px; cursor:pointer; transition:border-color .15s,color .15s; }
-      .btn-logout:hover { border-color:var(--red); color:var(--red); }
-      .main { max-width:900px; margin:0 auto; padding:32px 24px 120px; }
-      .section-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; }
-      .section-label { font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; }
-      .contestant-count { font-family:var(--mono); font-size:11px; color:var(--muted); }
-      .contestant-grid { display:flex; flex-direction:column; gap:2px; }
-      .contestant-row { display:grid; grid-template-columns:40px 1fr auto auto; align-items:center; gap:16px; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); cursor:pointer; transition:border-color .15s,background .15s; text-align:left; width:100%; }
-      .contestant-row:hover { border-color:var(--accent); background:rgba(108,99,255,.04); }
-      .contestant-row.selected { border-color:var(--accent); background:var(--accent-lo); }
-      .rank { font-family:var(--mono); font-size:12px; color:var(--muted); text-align:center; }
-      .contestant-info { min-width:0; }
-      .contestant-name { font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .contestant-meta { display:flex; gap:10px; align-items:center; margin-top:2px; }
-      .contestant-dept { font-size:11px; color:var(--muted); font-family:var(--mono); }
-      .contestant-ref { font-size:11px; color:var(--accent); font-family:var(--mono); background:var(--accent-lo); padding:1px 6px; border-radius:3px; }
-      .vote-count { font-family:var(--mono); font-size:13px; font-weight:500; color:var(--green); white-space:nowrap; }
-      .vote-label { font-size:10px; color:var(--muted); font-family:var(--mono); text-align:right; margin-top:1px; }
-      .select-badge { font-family:var(--mono); font-size:10px; color:var(--accent); border:1px solid var(--accent); padding:2px 7px; border-radius:4px; opacity:0; transition:opacity .15s; }
-      .contestant-row:hover .select-badge,.contestant-row.selected .select-badge { opacity:1; }
-      .input-panel { position:fixed; bottom:0; left:0; right:0; background:rgba(10,10,11,.95); backdrop-filter:blur(16px); border-top:1px solid var(--border-hi); padding:16px 24px; z-index:40; transform:translateY(100%); transition:transform .25s cubic-bezier(.16,1,.3,1); }
-      .input-panel.visible { transform:translateY(0); }
-      .panel-inner { max-width:900px; margin:0 auto; display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; }
-      .panel-target-label { font-family:var(--mono); font-size:10px; color:var(--muted); }
-      .panel-target-name { font-size:14px; font-weight:500; }
-      .amount-wrap { position:relative; display:flex; align-items:center; }
-      .naira-symbol { position:absolute; left:12px; font-family:var(--mono); font-size:14px; color:var(--muted); pointer-events:none; }
-      .amount-input { background:var(--surface); border:1px solid var(--border-hi); border-radius:var(--radius); color:var(--text); font-family:var(--mono); font-size:15px; font-weight:500; padding:10px 16px 10px 28px; width:160px; transition:border-color .15s; outline:none; }
-      .amount-input:focus { border-color:var(--accent); }
-      .amount-input::placeholder { color:var(--muted); font-weight:400; }
-      .votes-preview { font-family:var(--mono); font-size:11px; color:var(--green); margin-top:4px; text-align:center; height:14px; }
-      .btn-credit { background:var(--accent); color:#fff; border:none; border-radius:var(--radius); font-family:var(--sans); font-size:13px; font-weight:500; padding:10px 22px; cursor:pointer; transition:opacity .15s,transform .1s; white-space:nowrap; }
-      .btn-credit:hover { opacity:.88; } .btn-credit:active { transform:scale(.97); }
-      .btn-credit:disabled { opacity:.35; cursor:not-allowed; }
-      .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); z-index:100; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
-      .modal-backdrop.visible { opacity:1; pointer-events:all; }
-      .modal { background:var(--surface); border:1px solid var(--border-hi); border-radius:12px; padding:32px; width:100%; max-width:420px; transform:scale(.96) translateY(8px); transition:transform .2s cubic-bezier(.16,1,.3,1); }
-      .modal-backdrop.visible .modal { transform:scale(1) translateY(0); }
-      .modal-icon { width:40px; height:40px; background:var(--amber); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; font-size:20px; }
-      .modal h2 { font-size:17px; font-weight:600; margin-bottom:6px; }
-      .modal-subtitle { font-size:12px; color:var(--muted); margin-bottom:24px; }
-      .detail-list { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:24px; display:flex; flex-direction:column; gap:10px; }
-      .detail-row { display:flex; justify-content:space-between; align-items:baseline; font-size:13px; }
-      .detail-key { color:var(--muted); font-family:var(--mono); font-size:11px; }
-      .detail-val { font-family:var(--mono); font-weight:500; }
-      .detail-val.highlight { color:var(--green); font-size:16px; }
-      .modal-note { font-size:11px; color:var(--amber); font-family:var(--mono); margin-bottom:24px; padding:8px 12px; background:rgba(245,158,11,.08); border-radius:6px; border-left:2px solid var(--amber); }
-      .modal-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-      .btn-cancel { background:none; border:1px solid var(--border-hi); color:var(--muted); padding:10px; border-radius:var(--radius); font-family:var(--sans); font-size:13px; cursor:pointer; transition:border-color .15s,color .15s; }
-      .btn-cancel:hover { border-color:var(--text); color:var(--text); }
-      .btn-confirm { background:var(--green); color:#0a0a0b; border:none; padding:10px; border-radius:var(--radius); font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer; transition:opacity .15s; }
-      .btn-confirm:hover { opacity:.88; } .btn-confirm:disabled { opacity:.5; cursor:not-allowed; }
-      .toast-container { position:fixed; top:72px; right:20px; z-index:200; display:flex; flex-direction:column; gap:8px; }
-      .toast { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; font-size:13px; max-width:300px; box-shadow:0 8px 32px rgba(0,0,0,.5); animation:slideIn .25s cubic-bezier(.16,1,.3,1); }
-      .toast.success { border-color:var(--green); } .toast.error { border-color:var(--red); }
-      .toast-title { font-weight:500; margin-bottom:2px; }
-      .toast.success .toast-title { color:var(--green); } .toast.error .toast-title { color:var(--red); }
-      .toast-body { color:var(--muted); font-size:12px; font-family:var(--mono); }
-      @keyframes slideIn { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
-      .loading-row { padding:40px; text-align:center; color:var(--muted); font-family:var(--mono); font-size:12px; letter-spacing:.08em; }
-      .spinner { display:inline-block; width:16px; height:16px; border:2px solid var(--border-hi); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; margin-right:8px; vertical-align:middle; }
-      @keyframes spin { to{transform:rotate(360deg)} }
+      :root {
+        --bg: #0a0a0b;
+        --surface: #111114;
+        --border: #1f1f24;
+        --border-hi: #2e2e38;
+        --text: #e8e8f0;
+        --muted: #5a5a72;
+        --accent: #6c63ff;
+        --accent-lo: rgba(108, 99, 255, 0.12);
+        --green: #22c55e;
+        --red: #ef4444;
+        --amber: #f59e0b;
+        --radius: 8px;
+        --mono: "IBM Plex Mono", monospace;
+        --sans: "IBM Plex Sans", sans-serif;
+      }
+      html,
+      body {
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 14px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      #login-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      .login-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 48px 44px;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+      .login-badge {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        color: var(--accent);
+        background: var(--accent-lo);
+        border: 1px solid rgba(108, 99, 255, 0.25);
+        padding: 4px 10px;
+        border-radius: 4px;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+      }
+      .login-card h1 {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.3px;
+        margin-bottom: 6px;
+      }
+      .login-card p {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 36px;
+      }
+      .btn-google {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 12px 20px;
+        background: #fff;
+        color: #1a1a1a;
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition:
+          opacity 0.15s,
+          transform 0.1s;
+      }
+      .btn-google:hover {
+        opacity: 0.92;
+      }
+      .btn-google:active {
+        transform: scale(0.98);
+      }
+      .google-icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+      .login-footer {
+        margin-top: 20px;
+        font-size: 11px;
+        color: var(--muted);
+        font-family: var(--mono);
+      }
+      #admin-screen {
+        display: none;
+        min-height: 100vh;
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        height: 56px;
+        background: rgba(10, 10, 11, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+      .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .topbar-logo {
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+      }
+      .topbar-sep {
+        color: var(--border-hi);
+        font-size: 18px;
+      }
+      .topbar-title {
+        font-size: 13px;
+        color: var(--muted);
+        font-family: var(--mono);
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 4px 12px 4px 6px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .user-avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--accent-lo);
+        border: 1px solid var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        color: var(--accent);
+        font-weight: 600;
+        overflow: hidden;
+      }
+      .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .btn-logout {
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 5px 12px;
+        border-radius: var(--radius);
+        font-family: var(--mono);
+        font-size: 11px;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          color 0.15s;
+      }
+      .btn-logout:hover {
+        border-color: var(--red);
+        color: var(--red);
+      }
+      .main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 32px 24px 120px;
+      }
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .section-label {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .contestant-count {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .contestant-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .contestant-row {
+        display: grid;
+        grid-template-columns: 40px 1fr auto auto;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+        text-align: left;
+        width: 100%;
+      }
+      .contestant-row:hover {
+        border-color: var(--accent);
+        background: rgba(108, 99, 255, 0.04);
+      }
+      .contestant-row.selected {
+        border-color: var(--accent);
+        background: var(--accent-lo);
+      }
+      .rank {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+      .contestant-info {
+        min-width: 0;
+      }
+      .contestant-name {
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .contestant-meta {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 2px;
+      }
+      .contestant-dept {
+        font-size: 11px;
+        color: var(--muted);
+        font-family: var(--mono);
+      }
+      .contestant-ref {
+        font-size: 11px;
+        color: var(--accent);
+        font-family: var(--mono);
+        background: var(--accent-lo);
+        padding: 1px 6px;
+        border-radius: 3px;
+      }
+      .vote-count {
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--green);
+        white-space: nowrap;
+      }
+      .vote-label {
+        font-size: 10px;
+        color: var(--muted);
+        font-family: var(--mono);
+        text-align: right;
+        margin-top: 1px;
+      }
+      .select-badge {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        padding: 2px 7px;
+        border-radius: 4px;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .contestant-row:hover .select-badge,
+      .contestant-row.selected .select-badge {
+        opacity: 1;
+      }
+      .input-panel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 11, 0.95);
+        backdrop-filter: blur(16px);
+        border-top: 1px solid var(--border-hi);
+        padding: 16px 24px;
+        z-index: 40;
+        transform: translateY(100%);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .input-panel.visible {
+        transform: translateY(0);
+      }
+      .panel-inner {
+        max-width: 900px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 12px;
+        align-items: center;
+      }
+      .panel-target-label {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .panel-target-name {
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .amount-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .naira-symbol {
+        position: absolute;
+        left: 12px;
+        font-family: var(--mono);
+        font-size: 14px;
+        color: var(--muted);
+        pointer-events: none;
+      }
+      .amount-input {
+        background: var(--surface);
+        border: 1px solid var(--border-hi);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 15px;
+        font-weight: 500;
+        padding: 10px 16px 10px 28px;
+        width: 160px;
+        transition: border-color 0.15s;
+        outline: none;
+      }
+      .amount-input:focus {
+        border-color: var(--accent);
+      }
+      .amount-input::placeholder {
+        color: var(--muted);
+        font-weight: 400;
+      }
+      .votes-preview {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--green);
+        margin-top: 4px;
+        text-align: center;
+        height: 14px;
+      }
+      .btn-credit {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius);
+        font-family: var(--sans);
+        font-size: 13px;
+        font-weight: 500;
+        padding: 10px 22px;
+        cursor: pointer;
+        transition:
+          opacity 0.15s,
+          transform 0.1s;
+        white-space: nowrap;
+      }
+      .btn-credit:hover {
+        opacity: 0.88;
+      }
+      .btn-credit:active {
+        transform: scale(0.97);
+      }
+      .btn-credit:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .modal-backdrop.visible {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border-hi);
+        border-radius: 12px;
+        padding: 32px;
+        width: 100%;
+        max-width: 420px;
+        transform: scale(0.96) translateY(8px);
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .modal-backdrop.visible .modal {
+        transform: scale(1) translateY(0);
+      }
+      .modal-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--amber);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        font-size: 20px;
+      }
+      .modal h2 {
+        font-size: 17px;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .modal-subtitle {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 24px;
+      }
+      .detail-list {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 13px;
+      }
+      .detail-key {
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+      .detail-val {
+        font-family: var(--mono);
+        font-weight: 500;
+      }
+      .detail-val.highlight {
+        color: var(--green);
+        font-size: 16px;
+      }
+      .modal-note {
+        font-size: 11px;
+        color: var(--amber);
+        font-family: var(--mono);
+        margin-bottom: 24px;
+        padding: 8px 12px;
+        background: rgba(245, 158, 11, 0.08);
+        border-radius: 6px;
+        border-left: 2px solid var(--amber);
+      }
+      .modal-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .btn-cancel {
+        background: none;
+        border: 1px solid var(--border-hi);
+        color: var(--muted);
+        padding: 10px;
+        border-radius: var(--radius);
+        font-family: var(--sans);
+        font-size: 13px;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          color 0.15s;
+      }
+      .btn-cancel:hover {
+        border-color: var(--text);
+        color: var(--text);
+      }
+      .btn-confirm {
+        background: var(--green);
+        color: #0a0a0b;
+        border: none;
+        padding: 10px;
+        border-radius: var(--radius);
+        font-family: var(--sans);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+      .btn-confirm:hover {
+        opacity: 0.88;
+      }
+      .btn-confirm:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .toast-container {
+        position: fixed;
+        top: 72px;
+        right: 20px;
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .toast {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 16px;
+        font-size: 13px;
+        max-width: 300px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .toast.success {
+        border-color: var(--green);
+      }
+      .toast.error {
+        border-color: var(--red);
+      }
+      .toast-title {
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+      .toast.success .toast-title {
+        color: var(--green);
+      }
+      .toast.error .toast-title {
+        color: var(--red);
+      }
+      .toast-body {
+        color: var(--muted);
+        font-size: 12px;
+        font-family: var(--mono);
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .loading-row {
+        padding: 40px;
+        text-align: center;
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+      }
+      .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--border-hi);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
   <body>
-
     <div id="login-screen">
       <div class="login-card">
         <div class="login-badge">Admin Access</div>
         <h1>Vote Control Panel</h1>
-        <p>Sign in with your Google account to manually credit votes to contestants.</p>
+        <p>
+          Sign in with your Google account to manually credit votes to
+          contestants.
+        </p>
         <button class="btn-google" onclick="handleGoogleLogin()">
           <svg class="google-icon" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            <path
+              fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+            />
           </svg>
           Continue with Google
         </button>
@@ -141,7 +686,9 @@
           <span class="contestant-count" id="contestant-count">—</span>
         </div>
         <div class="contestant-grid" id="contestant-grid">
-          <div class="loading-row"><span class="spinner"></span>Loading contestants…</div>
+          <div class="loading-row">
+            <span class="spinner"></span>Loading contestants…
+          </div>
         </div>
       </main>
 
@@ -156,11 +703,26 @@
           <div>
             <div class="amount-wrap">
               <span class="naira-symbol">₦</span>
-              <input type="number" class="amount-input" id="amount-input" placeholder="0" min="1" step="1" oninput="onAmountChange()" />
+              <input
+                type="number"
+                class="amount-input"
+                id="amount-input"
+                placeholder="0"
+                min="1"
+                step="1"
+                oninput="onAmountChange()"
+              />
             </div>
             <div class="votes-preview" id="votes-preview"></div>
           </div>
-          <button class="btn-credit" id="btn-credit" onclick="openConfirm()" disabled>Credit Votes →</button>
+          <button
+            class="btn-credit"
+            id="btn-credit"
+            onclick="openConfirm()"
+            disabled
+          >
+            Credit Votes →
+          </button>
         </div>
       </div>
     </div>
@@ -169,7 +731,9 @@
       <div class="modal">
         <div class="modal-icon">⚠️</div>
         <h2>Confirm Vote Credit</h2>
-        <p class="modal-subtitle">This entry is permanent and cannot be undone.</p>
+        <p class="modal-subtitle">
+          This entry is permanent and cannot be undone.
+        </p>
         <div class="detail-list">
           <div class="detail-row">
             <span class="detail-key">CONTESTANT</span>
@@ -188,10 +752,15 @@
             <span class="detail-val highlight" id="m-votes">—</span>
           </div>
         </div>
-        <div class="modal-note">ⓘ Once confirmed, this is written to an immutable audit log. Double-check the amount before proceeding.</div>
+        <div class="modal-note">
+          ⓘ Once confirmed, this is written to an immutable audit log.
+          Double-check the amount before proceeding.
+        </div>
         <div class="modal-actions">
           <button class="btn-cancel" onclick="closeModal()">Go Back</button>
-          <button class="btn-confirm" id="btn-confirm" onclick="submitVote()">Confirm & Credit</button>
+          <button class="btn-confirm" id="btn-confirm" onclick="submitVote()">
+            Confirm & Credit
+          </button>
         </div>
       </div>
     </div>
@@ -201,20 +770,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script>
       // ── Config ───────────────────────────────────────────
-      const SUPABASE_URL  = "https://zjkzdgdoenniruigwzfd.supabase.co";
-      const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpqa3pkZ2RvZW5uaXJ1aWd3emZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjU4NzEsImV4cCI6MjA5NTQwMTg3MX0.7IakZ6r0AwhJpiZ02tEMNBnY521bWzLffVwIBjD9s2I";
-      const VOTE_PRICE    = 100; // ₦ per vote
+      const SUPABASE_URL = "https://zjkzdgdoenniruigwzfd.supabase.co";
+      const SUPABASE_ANON =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpqa3pkZ2RvZW5uaXJ1aWd3emZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjU4NzEsImV4cCI6MjA5NTQwMTg3MX0.7IakZ6r0AwhJpiZ02tEMNBnY521bWzLffVwIBjD9s2I";
+      const VOTE_PRICE = 100; // ₦ per vote
 
       const { createClient } = supabase;
       const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
       // ── State ────────────────────────────────────────────
-      let currentUser   = null;
-      let selectedId    = null;
-      let selectedName  = null;
-      let selectedRef   = null;
+      let currentUser = null;
+      let selectedId = null;
+      let selectedName = null;
+      let selectedRef = null;
       let selectedTotal = 0;
-      let pendingVotes  = 0;
+      let pendingVotes = 0;
       let pendingAmount = 0;
 
       // ── Auth ─────────────────────────────────────────────
@@ -222,7 +792,7 @@
         sb.auth.onAuthStateChange((event, session) => {
           if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
             if (session) onLogin(session.user);
-            else         onLogout();
+            else onLogout();
           }
           if (event === "SIGNED_OUT") onLogout();
         });
@@ -247,8 +817,9 @@
         const avatarEl = document.getElementById("user-avatar");
         document.getElementById("user-email").textContent = user.email || "—";
         const avatarUrl = user.user_metadata?.avatar_url;
-        if (avatarUrl) avatarEl.innerHTML = `<img src="${avatarUrl}" alt="avatar" />`;
-        else           avatarEl.textContent = (user.email || "?")[0].toUpperCase();
+        if (avatarUrl)
+          avatarEl.innerHTML = `<img src="${avatarUrl}" alt="avatar" />`;
+        else avatarEl.textContent = (user.email || "?")[0].toUpperCase();
 
         loadContestants();
       }
@@ -256,7 +827,7 @@
       function onLogout() {
         currentUser = null;
         document.getElementById("login-screen").style.display = "flex";
-        document.getElementById("admin-screen").style.display  = "none";
+        document.getElementById("admin-screen").style.display = "none";
       }
 
       // ── Load contestants — direct Supabase query ─────────
@@ -283,157 +854,185 @@
           return;
         }
 
-        grid.innerHTML = list.map((c, i) => `
-          <button
-            class="contestant-row"
-            id="row-${c.id}"
-            onclick="selectContestant('${c.id}', ${JSON.stringify(c.name)}, '${c.reference_code}', ${c.total_votes})"
-          >
-            <span class="rank">${i + 1}</span>
-            <div class="contestant-info">
-              <div class="contestant-name">${escHtml(c.name)}</div>
-              <div class="contestant-meta">
-                ${c.department ? `<span class="contestant-dept">${escHtml(c.department)}</span>` : ""}
-                <span class="contestant-ref">${escHtml(c.reference_code)}</span>
-              </div>
+        grid.innerHTML = list
+          .map(
+            (c, i) => `
+        <button
+          class="contestant-row"
+          id="row-${c.id}"
+          data-id="${c.id}"
+          data-name="${escHtml(c.name)}"
+          data-ref="${escHtml(c.reference_code)}"
+          data-total="${c.total_votes}"
+        >
+          <span class="rank">${i + 1}</span>
+          <div class="contestant-info">
+            <div class="contestant-name">${escHtml(c.name)}</div>
+            <div class="contestant-meta">
+              ${c.department ? `<span class="contestant-dept">${escHtml(c.department)}</span>` : ""}
+              <span class="contestant-ref">${escHtml(c.reference_code)}</span>
             </div>
-            <div>
-              <div class="vote-count">${c.total_votes.toLocaleString()}</div>
-              <div class="vote-label">votes</div>
-            </div>
-            <span class="select-badge">SELECT</span>
-          </button>
-        `).join("");
-      }
+          </div>
+          <div>
+            <div class="vote-count">${c.total_votes.toLocaleString()}</div>
+            <div class="vote-label">votes</div>
+          </div>
+          <span class="select-badge">SELECT</span>
+        </button>
+      `,
+          )
+          .join("");
 
-      // ── Select contestant ────────────────────────────────
-      function selectContestant(id, name, ref, total) {
-        if (selectedId) document.getElementById(`row-${selectedId}`)?.classList.remove("selected");
-        selectedId    = id;
-        selectedName  = name;
-        selectedRef   = ref;
-        selectedTotal = total;
+        // attach click listeners after render
+        document.querySelectorAll(".contestant-row").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            selectContestant(
+              btn.dataset.id,
+              btn.dataset.name,
+              btn.dataset.ref,
+              parseInt(btn.dataset.total),
+            );
+          });
+        });
+        // ── Select contestant ────────────────────────────────
+        function selectContestant(id, name, ref, total) {
+          if (selectedId)
+            document
+              .getElementById(`row-${selectedId}`)
+              ?.classList.remove("selected");
+          selectedId = id;
+          selectedName = name;
+          selectedRef = ref;
+          selectedTotal = total;
 
-        document.getElementById(`row-${id}`)?.classList.add("selected");
-        document.getElementById("panel-name").textContent = `${name} · ${ref}`;
-        document.getElementById("input-panel").classList.add("visible");
-        document.getElementById("amount-input").focus();
-        onAmountChange();
-      }
-
-      // ── Amount input ─────────────────────────────────────
-      function onAmountChange() {
-        const raw   = parseInt(document.getElementById("amount-input").value, 10) || 0;
-        const votes = Math.floor(raw / VOTE_PRICE);
-        const btnEl = document.getElementById("btn-credit");
-        const preEl = document.getElementById("votes-preview");
-
-        pendingAmount = raw;
-        pendingVotes  = votes;
-
-        if (raw <= 0) {
-          preEl.textContent = "";
-          btnEl.disabled = true;
-        } else if (votes === 0) {
-          preEl.textContent  = `< ₦${VOTE_PRICE} — 0 votes`;
-          preEl.style.color  = "var(--red)";
-          btnEl.disabled = true;
-        } else {
-          preEl.textContent  = `= ${votes} vote${votes !== 1 ? "s" : ""}`;
-          preEl.style.color  = "var(--green)";
-          btnEl.disabled = false;
+          document.getElementById(`row-${id}`)?.classList.add("selected");
+          document.getElementById("panel-name").textContent =
+            `${name} · ${ref}`;
+          document.getElementById("input-panel").classList.add("visible");
+          document.getElementById("amount-input").focus();
+          onAmountChange();
         }
-      }
 
-      // ── Modal ────────────────────────────────────────────
-      function openConfirm() {
-        if (!selectedId || pendingVotes === 0) return;
-        document.getElementById("m-name").textContent   = selectedName;
-        document.getElementById("m-ref").textContent    = selectedRef;
-        document.getElementById("m-amount").textContent = `₦${pendingAmount.toLocaleString()}`;
-        document.getElementById("m-votes").textContent  = `+${pendingVotes}`;
-        document.getElementById("btn-confirm").disabled = false;
-        document.getElementById("modal").classList.add("visible");
-      }
+        // ── Amount input ─────────────────────────────────────
+        function onAmountChange() {
+          const raw =
+            parseInt(document.getElementById("amount-input").value, 10) || 0;
+          const votes = Math.floor(raw / VOTE_PRICE);
+          const btnEl = document.getElementById("btn-credit");
+          const preEl = document.getElementById("votes-preview");
 
-      function closeModal() {
-        document.getElementById("modal").classList.remove("visible");
-      }
+          pendingAmount = raw;
+          pendingVotes = votes;
 
-      // ── Submit vote — direct Supabase writes ─────────────
-      async function submitVote() {
-        const confirmBtn = document.getElementById("btn-confirm");
-        confirmBtn.disabled = true;
-        confirmBtn.textContent = "Recording…";
+          if (raw <= 0) {
+            preEl.textContent = "";
+            btnEl.disabled = true;
+          } else if (votes === 0) {
+            preEl.textContent = `< ₦${VOTE_PRICE} — 0 votes`;
+            preEl.style.color = "var(--red)";
+            btnEl.disabled = true;
+          } else {
+            preEl.textContent = `= ${votes} vote${votes !== 1 ? "s" : ""}`;
+            preEl.style.color = "var(--green)";
+            btnEl.disabled = false;
+          }
+        }
 
-        try {
-          // 1. Increment total_votes on the contestant
-          const { error: updateErr } = await sb
-            .from("contestants")
-            .update({ total_votes: selectedTotal + pendingVotes })
-            .eq("id", selectedId);
+        // ── Modal ────────────────────────────────────────────
+        function openConfirm() {
+          if (!selectedId || pendingVotes === 0) return;
+          document.getElementById("m-name").textContent = selectedName;
+          document.getElementById("m-ref").textContent = selectedRef;
+          document.getElementById("m-amount").textContent =
+            `₦${pendingAmount.toLocaleString()}`;
+          document.getElementById("m-votes").textContent = `+${pendingVotes}`;
+          document.getElementById("btn-confirm").disabled = false;
+          document.getElementById("modal").classList.add("visible");
+        }
 
-          if (updateErr) throw new Error(updateErr.message);
+        function closeModal() {
+          document.getElementById("modal").classList.remove("visible");
+        }
 
-          // 2. Append immutable log row
-          const { error: logErr } = await sb
-            .from("vote_logs")
-            .insert({
+        // ── Submit vote — direct Supabase writes ─────────────
+        async function submitVote() {
+          const confirmBtn = document.getElementById("btn-confirm");
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = "Recording…";
+
+          try {
+            // 1. Increment total_votes on the contestant
+            const { error: updateErr } = await sb
+              .from("contestants")
+              .update({ total_votes: selectedTotal + pendingVotes })
+              .eq("id", selectedId);
+
+            if (updateErr) throw new Error(updateErr.message);
+
+            // 2. Append immutable log row
+            const { error: logErr } = await sb.from("vote_logs").insert({
               contestant_id: selectedId,
-              amount_paid:   pendingAmount,
-              votes_added:   pendingVotes,
+              amount_paid: pendingAmount,
+              votes_added: pendingVotes,
             });
 
-          if (logErr) throw new Error(logErr.message);
+            if (logErr) throw new Error(logErr.message);
 
-          // 3. Update local state so next credit in same session is correct
-          selectedTotal += pendingVotes;
+            // 3. Update local state so next credit in same session is correct
+            selectedTotal += pendingVotes;
 
-          closeModal();
-          showToast(
-            "Votes Credited ✓",
-            `+${pendingVotes} votes → ${selectedName} (total: ${selectedTotal.toLocaleString()})`,
-            "success"
-          );
+            closeModal();
+            showToast(
+              "Votes Credited ✓",
+              `+${pendingVotes} votes → ${selectedName} (total: ${selectedTotal.toLocaleString()})`,
+              "success",
+            );
 
-          // Reset input
-          document.getElementById("amount-input").value = "";
-          document.getElementById("votes-preview").textContent = "";
-          document.getElementById("btn-credit").disabled = true;
+            // Reset input
+            document.getElementById("amount-input").value = "";
+            document.getElementById("votes-preview").textContent = "";
+            document.getElementById("btn-credit").disabled = true;
 
-          // Refresh leaderboard
-          await loadContestants();
+            // Refresh leaderboard
+            await loadContestants();
 
-          // Re-highlight the same contestant at its new rank
-          document.getElementById(`row-${selectedId}`)?.classList.add("selected");
-          document.getElementById("panel-name").textContent = `${selectedName} · ${selectedRef}`;
-
-        } catch (err) {
-          showToast("Failed", err.message, "error");
-        } finally {
-          confirmBtn.disabled = false;
-          confirmBtn.textContent = "Confirm & Credit";
+            // Re-highlight the same contestant at its new rank
+            document
+              .getElementById(`row-${selectedId}`)
+              ?.classList.add("selected");
+            document.getElementById("panel-name").textContent =
+              `${selectedName} · ${selectedRef}`;
+          } catch (err) {
+            showToast("Failed", err.message, "error");
+          } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "Confirm & Credit";
+          }
         }
+
+        // ── Toast ────────────────────────────────────────────
+        function showToast(title, body, type = "success") {
+          const el = document.createElement("div");
+          el.className = `toast ${type}`;
+          el.innerHTML = `<div class="toast-title">${escHtml(title)}</div><div class="toast-body">${escHtml(body)}</div>`;
+          document.getElementById("toast-container").appendChild(el);
+          setTimeout(() => el.remove(), 5000);
+        }
+
+        function escHtml(str) {
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        document.getElementById("modal").addEventListener("click", (e) => {
+          if (e.target === e.currentTarget) closeModal();
+        });
+
+        init();
       }
-
-      // ── Toast ────────────────────────────────────────────
-      function showToast(title, body, type = "success") {
-        const el = document.createElement("div");
-        el.className = `toast ${type}`;
-        el.innerHTML = `<div class="toast-title">${escHtml(title)}</div><div class="toast-body">${escHtml(body)}</div>`;
-        document.getElementById("toast-container").appendChild(el);
-        setTimeout(() => el.remove(), 5000);
-      }
-
-      function escHtml(str) {
-        return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-      }
-
-      document.getElementById("modal").addEventListener("click", e => {
-        if (e.target === e.currentTarget) closeModal();
-      });
-
-      init();
     </script>
   </body>
 </html>
