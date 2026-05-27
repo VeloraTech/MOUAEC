@@ -768,118 +768,224 @@
     <div class="toast-container" id="toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
     <script>
       // ── Config ───────────────────────────────────────────
       const SUPABASE_URL = "https://zjkzdgdoenniruigwzfd.supabase.co";
-      const SUPABASE_ANON =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpqa3pkZ2RvZW5uaXJ1aWd3emZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MjU4NzEsImV4cCI6MjA5NTQwMTg3MX0.7IakZ6r0AwhJpiZ02tEMNBnY521bWzLffVwIBjD9s2I";
-      const VOTE_PRICE = 100; // ₦ per vote
+
+      const SUPABASE_ANON = "YOUR_ANON_KEY_HERE";
 
       const { createClient } = supabase;
-      const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+      const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+        },
+      });
 
       // ── State ────────────────────────────────────────────
       let currentUser = null;
+
       let selectedId = null;
       let selectedName = null;
       let selectedRef = null;
       let selectedTotal = 0;
-      let pendingVotes = 0;
+
       let pendingAmount = 0;
 
-      // ── Auth ─────────────────────────────────────────────
+      // ── Init ─────────────────────────────────────────────
       async function init() {
-        sb.auth.onAuthStateChange((event, session) => {
+        const {
+          data: { session },
+        } = await sb.auth.getSession();
+
+        if (session?.user) {
+          await validateAdmin(session.user);
+        }
+
+        sb.auth.onAuthStateChange(async (event, session) => {
           if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
-            if (session) onLogin(session.user);
-            else onLogout();
+            if (session?.user) {
+              await validateAdmin(session.user);
+            }
           }
-          if (event === "SIGNED_OUT") onLogout();
+
+          if (event === "SIGNED_OUT") {
+            onLogout();
+          }
         });
       }
 
+      // ── Admin Validation ─────────────────────────────────
+      async function validateAdmin(user) {
+        try {
+          const { data, error } = await sb
+            .from("admins")
+            .select("*")
+            .eq("id", user.id)
+            .eq("is_active", true)
+            .single();
+
+          if (error || !data) {
+            await sb.auth.signOut();
+
+            showToast(
+              "Access Denied",
+              "This Google account is not authorised.",
+              "error",
+            );
+
+            return;
+          }
+
+          onLogin(user);
+        } catch (err) {
+          showToast("Auth Error", err.message, "error");
+        }
+      }
+
+      // ── Login ────────────────────────────────────────────
       async function handleGoogleLogin() {
         await sb.auth.signInWithOAuth({
           provider: "google",
-          options: { redirectTo: window.location.href },
+          options: {
+            redirectTo: "https://mouaec.vercel.app/admin.html",
+          },
         });
       }
 
+      // ── Logout ───────────────────────────────────────────
       async function handleLogout() {
         await sb.auth.signOut();
       }
 
+      // ── On Login ─────────────────────────────────────────
       function onLogin(user) {
         currentUser = user;
+
         document.getElementById("login-screen").style.display = "none";
+
         document.getElementById("admin-screen").style.display = "block";
 
         const avatarEl = document.getElementById("user-avatar");
+
         document.getElementById("user-email").textContent = user.email || "—";
+
         const avatarUrl = user.user_metadata?.avatar_url;
-        if (avatarUrl)
-          avatarEl.innerHTML = `<img src="${avatarUrl}" alt="avatar" />`;
-        else avatarEl.textContent = (user.email || "?")[0].toUpperCase();
+
+        if (avatarUrl) {
+          avatarEl.innerHTML = `
+        <img src="${avatarUrl}" alt="avatar" />
+      `;
+        } else {
+          avatarEl.textContent = (user.email || "?")[0].toUpperCase();
+        }
 
         loadContestants();
       }
 
+      // ── On Logout ────────────────────────────────────────
       function onLogout() {
         currentUser = null;
+
         document.getElementById("login-screen").style.display = "flex";
+
         document.getElementById("admin-screen").style.display = "none";
       }
 
-      // ── Load contestants — direct Supabase query ─────────
+      // ── Load Contestants ─────────────────────────────────
       async function loadContestants() {
         const { data, error } = await sb
           .from("contestants")
-          .select("id, name, department, reference_code, total_votes")
+          .select(
+            `
+        id,
+        name,
+        department,
+        image_url,
+        reference_code,
+        total_votes
+      `,
+          )
+          .eq("is_active", true)
           .order("total_votes", { ascending: false });
 
         if (error) {
           showToast("Error", error.message, "error");
           return;
         }
-        renderContestants(data);
+
+        renderContestants(data || []);
       }
 
+      // ── Render Contestants ───────────────────────────────
       function renderContestants(list) {
         const grid = document.getElementById("contestant-grid");
+
         document.getElementById("contestant-count").textContent =
           `${list.length} contestant${list.length !== 1 ? "s" : ""}`;
 
         if (!list.length) {
-          grid.innerHTML = `<div class="loading-row">No contestants found in the database.</div>`;
+          grid.innerHTML = `
+        <div class="loading-row">
+          No contestants found.
+        </div>
+      `;
           return;
         }
 
         grid.innerHTML = list
           .map(
             (c, i) => `
-    <button
-      class="contestant-row"
-      id="row-${c.id}"
-      data-id="${c.id}"
-      data-name="${escHtml(c.name)}"
-      data-ref="${escHtml(c.reference_code)}"
-      data-total="${c.total_votes}"
-    >
-      <span class="rank">${i + 1}</span>
-      <div class="contestant-info">
-        <div class="contestant-name">${escHtml(c.name)}</div>
-        <div class="contestant-meta">
-          ${c.department ? `<span class="contestant-dept">${escHtml(c.department)}</span>` : ""}
-          <span class="contestant-ref">${escHtml(c.reference_code)}</span>
+      <button
+        class="contestant-row"
+        id="row-${c.id}"
+        data-id="${c.id}"
+        data-name="${escHtml(c.name)}"
+        data-ref="${escHtml(c.reference_code)}"
+        data-total="${c.total_votes}"
+      >
+        <span class="rank">${i + 1}</span>
+
+        <div class="contestant-info">
+          <div class="contestant-name">
+            ${escHtml(c.name)}
+          </div>
+
+          <div class="contestant-meta">
+            ${
+              c.department
+                ? `
+              <span class="contestant-dept">
+                ${escHtml(c.department)}
+              </span>
+            `
+                : ""
+            }
+
+            <span class="contestant-ref">
+              ${escHtml(c.reference_code)}
+            </span>
+          </div>
         </div>
-      </div>
-      <div>
-        <div class="vote-count">${c.total_votes.toLocaleString()}</div>
-        <div class="vote-label">votes</div>
-      </div>
-      <span class="select-badge">SELECT</span>
-    </button>
-  `,
+
+        <div>
+          <div class="vote-count">
+            ${c.total_votes.toLocaleString()}
+          </div>
+
+          <div class="vote-label">
+            votes
+          </div>
+        </div>
+
+        <span class="select-badge">
+          SELECT
+        </span>
+      </button>
+    `,
           )
           .join("");
 
@@ -893,109 +999,141 @@
             );
           });
         });
-      } // ← renderContestants ends HERE
+      }
 
-      // ── Select contestant ────────────────────────────────
+      // ── Select Contestant ────────────────────────────────
       function selectContestant(id, name, ref, total) {
-        if (selectedId)
+        if (selectedId) {
           document
             .getElementById(`row-${selectedId}`)
             ?.classList.remove("selected");
+        }
+
         selectedId = id;
         selectedName = name;
         selectedRef = ref;
         selectedTotal = total;
 
         document.getElementById(`row-${id}`)?.classList.add("selected");
+
         document.getElementById("panel-name").textContent = `${name} · ${ref}`;
+
         document.getElementById("input-panel").classList.add("visible");
+
         document.getElementById("amount-input").focus();
+
         onAmountChange();
       }
 
-      // ── Amount input ─────────────────────────────────────
+      // ── Amount Input ─────────────────────────────────────
       function onAmountChange() {
         const raw =
           parseInt(document.getElementById("amount-input").value, 10) || 0;
-        const votes = Math.floor(raw / VOTE_PRICE);
-        const btnEl = document.getElementById("btn-credit");
-        const preEl = document.getElementById("votes-preview");
 
         pendingAmount = raw;
-        pendingVotes = votes;
+
+        const previewEl = document.getElementById("votes-preview");
+
+        const btnEl = document.getElementById("btn-credit");
 
         if (raw <= 0) {
-          preEl.textContent = "";
+          previewEl.textContent = "";
           btnEl.disabled = true;
-        } else if (votes === 0) {
-          preEl.textContent = `< ₦${VOTE_PRICE} — 0 votes`;
-          preEl.style.color = "var(--red)";
-          btnEl.disabled = true;
-        } else {
-          preEl.textContent = `= ${votes} vote${votes !== 1 ? "s" : ""}`;
-          preEl.style.color = "var(--green)";
-          btnEl.disabled = false;
+          return;
         }
+
+        const estimatedVotes = Math.floor(raw / 100);
+
+        if (estimatedVotes <= 0) {
+          previewEl.textContent = "< ₦100 — 0 votes";
+
+          previewEl.style.color = "var(--red)";
+
+          btnEl.disabled = true;
+
+          return;
+        }
+
+        previewEl.textContent = `≈ ${estimatedVotes} vote${estimatedVotes !== 1 ? "s" : ""}`;
+
+        previewEl.style.color = "var(--green)";
+
+        btnEl.disabled = false;
       }
 
-      // ── Modal ────────────────────────────────────────────
+      // ── Open Confirm Modal ───────────────────────────────
       function openConfirm() {
-        if (!selectedId || pendingVotes === 0) return;
+        if (!selectedId || pendingAmount < 100) {
+          return;
+        }
+
+        const estimatedVotes = Math.floor(pendingAmount / 100);
+
         document.getElementById("m-name").textContent = selectedName;
+
         document.getElementById("m-ref").textContent = selectedRef;
+
         document.getElementById("m-amount").textContent =
           `₦${pendingAmount.toLocaleString()}`;
-        document.getElementById("m-votes").textContent = `+${pendingVotes}`;
-        document.getElementById("btn-confirm").disabled = false;
+
+        document.getElementById("m-votes").textContent = `+${estimatedVotes}`;
+
         document.getElementById("modal").classList.add("visible");
       }
 
+      // ── Close Modal ──────────────────────────────────────
       function closeModal() {
         document.getElementById("modal").classList.remove("visible");
       }
 
-      // ── Submit vote ──────────────────────────────────────
+      // ── Submit Vote ──────────────────────────────────────
       async function submitVote() {
         const confirmBtn = document.getElementById("btn-confirm");
+
         confirmBtn.disabled = true;
+
         confirmBtn.textContent = "Recording…";
 
         try {
-          const { error: updateErr } = await sb
-            .from("contestants")
-            .update({ total_votes: selectedTotal + pendingVotes })
-            .eq("id", selectedId);
-          if (updateErr) throw new Error(updateErr.message);
-
-          const { error: logErr } = await sb.from("vote_logs").insert({
-            contestant_id: selectedId,
-            amount_paid: pendingAmount,
-            votes_added: pendingVotes,
+          const { error } = await sb.rpc("credit_votes", {
+            contestant_uuid: selectedId,
+            amount_input: pendingAmount,
+            note_input: "Manual dashboard credit",
           });
-          if (logErr) throw new Error(logErr.message);
 
-          selectedTotal += pendingVotes;
+          if (error) {
+            throw error;
+          }
+
           closeModal();
+
           showToast(
             "Votes Credited ✓",
-            `+${pendingVotes} votes → ${selectedName} (total: ${selectedTotal.toLocaleString()})`,
+            `₦${pendingAmount.toLocaleString()} added to ${selectedName}`,
             "success",
           );
 
           document.getElementById("amount-input").value = "";
+
           document.getElementById("votes-preview").textContent = "";
+
           document.getElementById("btn-credit").disabled = true;
 
+          pendingAmount = 0;
+
           await loadContestants();
+
           document
             .getElementById(`row-${selectedId}`)
             ?.classList.add("selected");
+
           document.getElementById("panel-name").textContent =
             `${selectedName} · ${selectedRef}`;
         } catch (err) {
-          showToast("Failed", err.message, "error");
+          showToast("Failed", err.message || "Could not credit votes", "error");
         } finally {
           confirmBtn.disabled = false;
+
           confirmBtn.textContent = "Confirm & Credit";
         }
       }
@@ -1003,12 +1141,27 @@
       // ── Toast ────────────────────────────────────────────
       function showToast(title, body, type = "success") {
         const el = document.createElement("div");
+
         el.className = `toast ${type}`;
-        el.innerHTML = `<div class="toast-title">${escHtml(title)}</div><div class="toast-body">${escHtml(body)}</div>`;
+
+        el.innerHTML = `
+      <div class="toast-title">
+        ${escHtml(title)}
+      </div>
+
+      <div class="toast-body">
+        ${escHtml(body)}
+      </div>
+    `;
+
         document.getElementById("toast-container").appendChild(el);
-        setTimeout(() => el.remove(), 5000);
+
+        setTimeout(() => {
+          el.remove();
+        }, 5000);
       }
 
+      // ── Escape HTML ──────────────────────────────────────
       function escHtml(str) {
         return String(str)
           .replace(/&/g, "&amp;")
@@ -1017,10 +1170,14 @@
           .replace(/"/g, "&quot;");
       }
 
+      // ── Modal Outside Click ──────────────────────────────
       document.getElementById("modal").addEventListener("click", (e) => {
-        if (e.target === e.currentTarget) closeModal();
+        if (e.target === e.currentTarget) {
+          closeModal();
+        }
       });
 
+      // ── Start App ────────────────────────────────────────
       init();
     </script>
   </body>
