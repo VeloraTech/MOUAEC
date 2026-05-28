@@ -1102,7 +1102,7 @@
         const { data, error } = await sb
           .from("vote_logs")
           .select(
-            "id, created_at, votes_added, amount_paid, added_by, contestant_id, contestants(name, reference_code)",
+            "id, created_at, amount_paid, added_by, contestant_id, contestants(name, reference_code)",
           )
           .order("created_at", { ascending: false })
           .limit(50);
