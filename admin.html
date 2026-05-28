@@ -772,7 +772,64 @@
         </div>
       </div>
     </div>
-
+    <!-- ── Vote Log Section ── -->
+    <div style="margin-top: 32px">
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
+        "
+      >
+        <h3
+          style="
+            font-family: var(--display);
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+          "
+        >
+          Audit Log
+        </h3>
+        <button
+          onclick="loadVoteLog()"
+          style="
+            background: none;
+            border: 1px solid var(--border-hi);
+            color: var(--muted);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-family: var(--mono);
+            font-size: 11px;
+            cursor: pointer;
+          "
+        >
+          ↻ Refresh
+        </button>
+      </div>
+      <div
+        id="vote-log-table"
+        style="
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          overflow: hidden;
+        "
+      >
+        <div
+          style="
+            padding: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 12px;
+          "
+        >
+          Loading log…
+        </div>
+      </div>
+    </div>
     <div class="toast-container" id="toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -854,8 +911,8 @@
         if (avatarUrl)
           avatarEl.innerHTML = `<img src="${avatarUrl}" alt="avatar" />`;
         else avatarEl.textContent = (user.email || "?")[0].toUpperCase();
-
         loadContestants();
+        loadVoteLog();
       }
       function onLogout() {
         currentUser = null;
@@ -1009,6 +1066,7 @@
             vote_change: pendingVotes,
             new_votes: selectedTotal + pendingVotes,
             note: `₦${pendingAmount} credited via admin panel`,
+            added_by: currentUser.email,
           });
           if (logErr) throw new Error(logErr.message);
 
@@ -1036,6 +1094,72 @@
           confirmBtn.disabled = false;
           confirmBtn.textContent = "Confirm & Credit";
         }
+      }
+      async function loadVoteLog() {
+        const container = document.getElementById("vote-log-table");
+        container.innerHTML = `<div style="padding:24px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:12px"><span class="spinner"></span> Loading…</div>`;
+
+        const { data, error } = await sb
+          .from("vote_logs")
+          .select(
+            "id, recorded_at, votes_added, amount_paid, added_by, contestant_id, contestants(name, reference_code)",
+          )
+          .order("recorded_at", { ascending: false })
+          .limit(50);
+
+        if (error) {
+          container.innerHTML = `<div style="padding:16px;color:var(--red);font-size:13px">Failed: ${error.message}</div>`;
+          return;
+        }
+
+        if (!data.length) {
+          container.innerHTML = `<div style="padding:24px;text-align:center;color:var(--muted);font-size:13px">No vote entries yet.</div>`;
+          return;
+        }
+
+        container.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border)">
+          <th style="padding:10px 14px;text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;color:var(--muted);font-weight:600;text-transform:uppercase">Timestamp</th>
+          <th style="padding:10px 14px;text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;color:var(--muted);font-weight:600;text-transform:uppercase">Contestant</th>
+          <th style="padding:10px 14px;text-align:right;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;color:var(--muted);font-weight:600;text-transform:uppercase">Amount</th>
+          <th style="padding:10px 14px;text-align:right;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;color:var(--muted);font-weight:600;text-transform:uppercase">Votes</th>
+          <th style="padding:10px 14px;text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:0.1em;color:var(--muted);font-weight:600;text-transform:uppercase">Added By</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data
+          .map((row, i) => {
+            const ts = new Date(row.recorded_at).toLocaleString("en-NG", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            });
+            const name = row.contestants?.name || "Unknown";
+            const ref = row.contestants?.reference_code || "";
+            const email = row.added_by || "—";
+
+            return `
+            <tr style="border-bottom:1px solid var(--border);background:${i % 2 === 0 ? "var(--surface)" : "var(--surface2)"}">
+              <td style="padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--muted)">${ts}</td>
+              <td style="padding:10px 14px">
+                <div style="font-weight:600;font-size:13px">${escHtml(name)}</div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--accent)">${escHtml(ref)}</div>
+              </td>
+              <td style="padding:10px 14px;text-align:right;font-family:var(--mono);font-size:13px;font-weight:500">₦${(row.amount_paid || 0).toLocaleString()}</td>
+              <td style="padding:10px 14px;text-align:right;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--green)">+${row.votes_added}</td>
+              <td style="padding:10px 14px;font-size:12px;color:var(--muted)">${escHtml(email)}</td>
+            </tr>
+          `;
+          })
+          .join("")}
+      </tbody>
+    </table>
+  `;
       }
 
       // ── Toast ────────────────────────────────────────────
