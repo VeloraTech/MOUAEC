@@ -1102,9 +1102,9 @@
         const { data, error } = await sb
           .from("vote_logs")
           .select(
-            "id, recorded_at, votes_added, amount_paid, added_by, contestant_id, contestants(name, reference_code)",
+            "id, created_at, votes_added, amount_paid, added_by, contestant_id, contestants(name, reference_code)",
           )
-          .order("recorded_at", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(50);
 
         if (error) {
