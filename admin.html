@@ -822,20 +822,28 @@
       ];
       async function onLogin(user) {
         if (!ALLOWED_EMAILS.includes(user.email)) {
-          await sb.avatarUrl.signOut();
-          document.getElementById("login-screen").innerHTML = `
-          <div class="login-card">
-            <div class="login-badge" style="background:rgba(192,57,433,0.1); color:#c0392b; border-color:rgba(192,57,43,0.1)">
-              Access Denied
-            </div>
-            <h1>Unauthorised Accouunt</h1>
-            <p style="color:var(--muted); font-size:13px; margin-top:8px">
-              <strong>${user.email}</strong> is not authorised to access this panel.
-            </p>
+          await sb.auth.signOut();
+
+          // Set AFTER signOut so onLogout() fires first, then we overwrite
+          setTimeout(() => {
+            document.getElementById("login-screen").style.display = "flex";
+            document.getElementById("login-screen").innerHTML = `
+        <div class="login-card">
+          <div class="login-badge" style="background:rgba(192,57,43,0.1);color:#c0392b;border-color:rgba(192,57,43,0.3)">
+            Access Denied
           </div>
-            `;
+          <h1>Unauthorised Account</h1>
+          <p style="color:var(--muted);font-size:13px;margin-top:8px">
+            <strong>${user.email}</strong> is not authorised to access this panel.
+          </p>
+        </div>
+      `;
+          }, 100);
+
           return;
         }
+
+        // ── Authorised — proceed ─────────────────────────────
         currentUser = user;
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("admin-screen").style.display = "block";
@@ -849,7 +857,6 @@
 
         loadContestants();
       }
-
       function onLogout() {
         currentUser = null;
         document.getElementById("login-screen").style.display = "flex";
